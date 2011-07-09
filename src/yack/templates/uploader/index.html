@@ -1,3 +1,19 @@
 <html>
-plop
+    <head>
+        <!--<script src="{{ STATIC_URL }}scripts/jquery-1.6.2.min.js" type="text/javascript"></script>-->
+        <script src="{{ STATIC_URL }}scripts/sha1.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h1>Bienvenue dans Yack</h1>
+        
+        <p>Yack est un gestionnaire d'upload de fichier.</p>
+
+        <form>
+            <label for=main_file >Fichier à uploader : </label><input onchange="yack_input_change()" id=main_file type=file name=main_file multiple />
+        </form>
+        <div id=work_list>
+        </div>
+        <script src="{{ STATIC_URL }}scripts/yack.js" type="text/javascript"></script>
+    </body>
+    
 </html>

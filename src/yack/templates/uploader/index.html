@@ -9,7 +9,9 @@
         <p>Yack est un gestionnaire d'upload de fichier.</p>
 
         <form>
-            <label for=main_file >Fichier à uploader : </label><input onchange="yack_input_change()" id=main_file type=file name=main_file multiple />
+            <label for=main_file >Fichier à uploader : </label><input id=main_file type=file name=main_file multiple />
+            <input id=size type=text />
+            <input id=submit type=button />
         </form>
         <div id=work_list>
         </div>

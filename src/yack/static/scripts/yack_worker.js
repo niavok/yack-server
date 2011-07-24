@@ -21,10 +21,11 @@ self.addEventListener('message', function(e) {
     
 }, false);
 
-
+var server;
 
 function init() {
     log('yack_worker: init');
+    server = new Server();
 }
 
 
@@ -39,43 +40,75 @@ function addFiles(files) {
 }
 
 function addFile(file) {
-    log(file)
-    var fileSize = file.size
-    log('yack_worker: file='+file.name);
-    log('yack_worker: size='+file.size);
     
+    sha = fileSha(file);
+    
+    log('yack_worker: sha='+sha)
+    
+    
+    distantFile = server.createDistantFile(file.name, file.size, sha);
+    
+    distantFile.send();
+    
+    
+}
+
+function Server() {
+
+    this.createDistantFile = function(name, size, sha) {
+          response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
+          
+          log(response);
+          
+          return new DistantFile();
+          
+    }
+    
+    this.sendCommand = function(command, params) {
+        var xhr_object = new XMLHttpRequest();
+        
+        var url = "/yack/command?format=json&cmd="+command;
+        
+        for(param in params) {
+            url += '&'+param+'='+params[param];
+        }
+        log('yack_worker: send '+url);
+        xhr_object.open("GET", url , false);
+        xhr_object.send(null);
+        log(xhr_object.responseText);
+        return eval(xhr_object.responseText);
+
+    }
+    
+    
+}
+
+function DistantFile() {
+    
+    this.send = function() {
+    
+    }
+}
+
+function fileSha(file) {
+     var fileSize = file.size
     
     var start = new Date().getTime();
     var sha = new Sha1();
     var reader = new FileReaderSync();
     var i;
     for (i = 0; i+yack_file_read_size <= fileSize; i+=yack_file_read_size) {
-        //log('yack_worker: block size='+yack_file_read_size);
         var blob = file.blob.webkitSlice(i, i+yack_file_read_size);
-        //log(blob);
-        //log(blob.size);
         var raw = reader.readAsArrayBuffer(blob);
         
-        //sha.update(rstr2binb(raw), raw.length);
         sha.update(raw);
     }
     var blob = file.blob.webkitSlice(i, fileSize);
-    log('yack_worker: last block size='+(fileSize-i));
-    log(blob);
-    log(i);
-    log(blob.size);
     var lastRaw = reader.readAsArrayBuffer(blob);
     
-    //sha.update(rstr2binb(lastRaw), lastRaw.length);
     sha.update(lastRaw);
     
-    var digest = rstr2hex(sha.digest());
-    
-            
-    log('yack_worker: '+fileSize+' sha1='+digest);
-    
-    var elapsed = new Date().getTime() - start;
-    log('yack_worker: elasped: '+elapsed+'ms');
+    return rstr2hex(sha.digest());
 }
 
 

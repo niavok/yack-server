@@ -10,8 +10,9 @@ class YackPack(models.Model):
     
 class YackFile(models.Model):
     name = models.CharField(max_length=200)
-    descritpion = models.CharField(max_length=800)
+    descripyion = models.CharField(max_length=800)
     size = models.IntegerField()
+    sha = models.CharField(max_length=32)
     
     def __unicode__(self):
         return self.name

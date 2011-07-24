@@ -44,32 +44,40 @@ function addFile(file) {
     log('yack_worker: file='+file.name);
     log('yack_worker: size='+file.size);
     
+    
+    var start = new Date().getTime();
     var sha = new Sha1();
     var reader = new FileReaderSync();
     var i;
     for (i = 0; i+yack_file_read_size <= fileSize; i+=yack_file_read_size) {
-        log('yack_worker: block size='+yack_file_read_size);
+        //log('yack_worker: block size='+yack_file_read_size);
         var blob = file.blob.webkitSlice(i, i+yack_file_read_size);
-        log(blob);
-        log(blob.size);
-        var raw = reader.readAsBinaryString(blob);
-        log(raw.length);
-        sha.update(rstr2binb(raw), raw.length);
+        //log(blob);
+        //log(blob.size);
+        var raw = reader.readAsArrayBuffer(blob);
+        
+        //sha.update(rstr2binb(raw), raw.length);
+        sha.update(raw);
     }
     var blob = file.blob.webkitSlice(i, fileSize);
     log('yack_worker: last block size='+(fileSize-i));
     log(blob);
     log(i);
     log(blob.size);
-    var lastRaw = reader.readAsBinaryString(blob);
+    var lastRaw = reader.readAsArrayBuffer(blob);
     
-    log(lastRaw.length);
-    sha.update(rstr2binb(lastRaw), lastRaw.length);
+    //sha.update(rstr2binb(lastRaw), lastRaw.length);
+    sha.update(lastRaw);
     
     var digest = rstr2hex(sha.digest());
+    
             
     log('yack_worker: '+fileSize+' sha1='+digest);
+    
+    var elapsed = new Date().getTime() - start;
+    log('yack_worker: elasped: '+elapsed+'ms');
 }
+
 
 
 function log(message) {

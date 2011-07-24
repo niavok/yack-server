@@ -303,6 +303,7 @@ function Sha1() {
 
     var length = 0;
     var w = Array(80);
+
     var a =  1732584193;
     var b = -271733879;
     var c = -1732584194;
@@ -310,63 +311,86 @@ function Sha1() {
     var e = -1009589776;
     var digest;
     var remainingSize = 0;
-    var remainingBuffer = Array(16);
+    var remainingBuffer = new Uint8Array(new ArrayBuffer(64));
+    var buffer = Array(16);    
     
     
+    this.update = function(x) {
+        var currentBuffer =  new Uint8Array(x);
     
-    this.update = function(x, len) {
-        log('sha1: update: '+len);
         var currentOffset = 0;
-        var currentLength = x.length;
-        
-        length += len;
+        var currentLength = currentBuffer.length;
+        //log('sha1: update: '+currentLength);
+        //log('sha1: update2: '+currentBuffer);
+        length += currentBuffer.length;
         
         //Compute old buffer with the rest of the new buffer
         if(remainingSize > 0) {
-            log('sha1: remainingSize: '+remainingSize);
-            for(var i = remainingSize; i < 16 && currentOffset < x.length; i++) {
-                remainingBuffer[i] = x[currentOffset];
+            //log('sha1: remainingSize: '+remainingSize);
+            for(var i = remainingSize; i < 64 && currentOffset < currentBuffer.length; i++) {
+                remainingBuffer[i] = currentBuffer[currentOffset];
                 currentOffset++;
                 remainingSize ++;
             }
             
-            if(remainingSize == 16) {
+            if(remainingSize == 64) {
                 computeBlock(remainingBuffer, 0);
                 remainingSize = 0;
             }
         }
         
         //Compute current buffer
-        while(currentOffset +16 < currentLength) {
-            computeBlock(x, currentOffset);
-            currentOffset += 16;
+        while(currentOffset +64 <= currentLength) {
+            computeBlock(currentBuffer, currentOffset);
+            currentOffset += 64;
         }
         
         //Store the end of the buffer
         
         for(var i = currentOffset; i < currentLength; i++) {
-            remainingBuffer[remainingSize++] = x[i];
+            remainingBuffer[remainingSize++] = currentBuffer[i];
         }
+        //log('sha1:  len='+length+' a='+a+' b='+b+' c='+c+' d='+d+' e='+e)
         
     }
     
     this.digest = function() {
         /* append padding */
-        var len  = length*8;
+        var bitlength  = length*8;
         
-        log('v1');
-        //remainingBuffer[((remainingSize-1)*8*4) >> 5] |= 0x80 << (24 - len % 32);
-        if(len % 32 == 0) {
-            remainingBuffer[remainingSize] |= 0x80 << 24;
-        } else {
-            remainingBuffer[remainingSize -1] |= 0x80 << (24 - len % 32);
-        }
-        remainingBuffer[((((remainingSize-1)*8*4) + 64 >> 9) << 4) + 15] = len;
+        //log('sha1: digest remainingSize: '+remainingSize);
         
-        var plop = '';
-        for(var i = 0; i< 16; i++) {
-            plop += remainingBuffer[i] + ' ';
+        remainingBuffer[remainingSize] |= 0x80;
+        for(var i = remainingSize+1; i < 64; i++) {
+            remainingBuffer[i] = 0;
         }
+        
+        if(remainingSize >=55) { // No space to write length
+            //log('sha1: need one more block');
+            computeBlock(remainingBuffer, 0);
+            for(var i = 0; i < 64; i++) {
+                remainingBuffer[i] = 0;
+            }
+        }
+        remainingBuffer[56] = (bitlength/4294967296 >> 24) & 0xFF;
+        remainingBuffer[57] = (bitlength/4294967296 >> 16) & 0xFF;
+        remainingBuffer[58] = (bitlength/4294967296 >> 8) & 0xFF;
+        remainingBuffer[59] = (bitlength/4294967296 >> 0) & 0xFF;
+        remainingBuffer[60] = (bitlength >> 24) & 0xFF;
+        remainingBuffer[61] = (bitlength >> 16) & 0xFF;
+        remainingBuffer[62] = (bitlength >> 8) & 0xFF;
+        remainingBuffer[63] = bitlength & 0xFF;
+      
+        
+        //log('sha1: 56 '+remainingBuffer[56]);
+        //log('sha1: 57 '+remainingBuffer[57]);
+        //log('sha1: 58 '+remainingBuffer[58]);
+        //log('sha1: 59 '+remainingBuffer[59]);
+        //log('sha1: 60 '+remainingBuffer[60]);
+        //log('sha1: 61 '+remainingBuffer[61]);
+        //log('sha1: 62 '+remainingBuffer[62]);
+        //log('sha1: 63 '+remainingBuffer[63]);
+                                                
         
         computeBlock(remainingBuffer, 0);
         
@@ -378,7 +402,24 @@ function Sha1() {
     
     
     
-     function computeBlock(buffer, offset) {
+     function computeBlock(workBuffer, offset) {
+            //log('sha1: computeBlock: '+workBuffer);
+
+            for(var i = 0; i < 16; i++) {
+            
+            
+                buffer[i] =  (workBuffer[offset+i*4] << 24) +
+                               (workBuffer[offset+i*4+1] << 16) +
+                               (workBuffer[offset+i*4+2] << 8) +
+                               (workBuffer[offset+i*4+3]);
+                //log('sha1: buffer '+(offset+i*4)+' = '+workBuffer[offset+i*4]);
+                //log('sha1: buffer '+(offset+i*4+1)+' = '+workBuffer[offset+i*4+1]);      
+                //log('sha1: buffer '+(offset+i*4+2)+' = '+workBuffer[offset+i*4+2]);      
+                //log('sha1: buffer '+(offset+i*4+3)+' = '+workBuffer[offset+i*4+3]);            
+            }
+
+            //log('sha1: computeBlock: '+offset+' last: '+buffer[15]);
+            
         
             var olda = a;
             var oldb = b;
@@ -390,7 +431,7 @@ function Sha1() {
             
             for(var j = 0; j < 80; j++)
             {
-                if(j < 16) w[j] = buffer[offset + j];
+                if(j < 16) w[j] = buffer[j];
                 else w[j] = bit_rol(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1);
                 var t = safe_add(safe_add(bit_rol(a, 5), sha1_ft(j, b, c, d)),
                                 safe_add(safe_add(e, w[j]), sha1_kt(j)));

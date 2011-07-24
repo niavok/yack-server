@@ -73,9 +73,9 @@ function yack_inputChange() {
     var filesStruct = [];
     
     for (var i = 0, file; file = files[i]; i++) {
-        //filesStruct[i] = {'name' : file.name , 'size' : file.size, 'blob' : file.webkitSlice(0,file.size)}
-        size = parseInt(yack_size);
-        filesStruct[i] = {'name' : file.name , 'size' : size, 'blob' : file.webkitSlice(0,size)}
+        filesStruct[i] = {'name' : file.name , 'size' : file.size, 'blob' : file.webkitSlice(0,file.size)}
+        //size = parseInt(yack_size);
+        //filesStruct[i] = {'name' : file.name , 'size' : size, 'blob' : file.webkitSlice(0,size)}
     }
     
     yack_worker.postMessage({'cmd' : 'add_files', 'files' : filesStruct});

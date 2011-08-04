@@ -48,7 +48,7 @@ function addFile(file) {
     
     distantFile = server.createDistantFile(file.name, file.size, sha);
     
-    distantFile.send();
+    distantFile.send(file);
     
     
 }
@@ -57,10 +57,9 @@ function Server() {
 
     this.createDistantFile = function(name, size, sha) {
           response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
+         
           
-          log(response);
-          
-          return new DistantFile();
+          return new DistantFile(response[0].pk);
           
     }
     
@@ -80,14 +79,89 @@ function Server() {
 
     }
     
+    this.sendDataCommand = function(command, params, data) {
+        var xhr_object = new XMLHttpRequest();
+        
+        var url = "/yack/command?format=json&cmd="+command;
+        
+        for(param in params) {
+            url += '&'+param+'='+params[param];
+        }
+        log('yack_worker: send '+url);
+        xhr_object.open("POST", url , false);
+        xhr_object.send(data);
+        log(xhr_object.responseText);
+        return eval(xhr_object.responseText);
+
+    }
     
 }
 
-function DistantFile() {
+function DistantFile(id) {
     
-    this.send = function() {
+    this.id = id;
     
+    this.send = function(file) {
+    	this.refresh()
+    
+    	var reader = new FileReaderSync();
+    
+    	while(work = this.getWork()) {
+			var blob = file.blob.webkitSlice(work.offset, work.size);
+			var raw = reader.readAsArrayBuffer(blob);
+			
+			var sha = new Sha1();
+			sha.update(raw);
+			var sha_digest = rstr2hex(sha.digest());
+			
+			
+			response = server.sendDataCommand('sendFilePart', {'pk': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
+			
+			log(response)
+    	}
     }
+    
+    this.refresh = function() { 
+    	log("pk="+this.id);
+    	response = server.sendCommand('getFileInfo', {'pk': this.id});
+    	
+    	this.size = response[0].fields.size
+    	this.sha = response[0].fields.sha
+    	this.parts = response[0].fields.parts
+    	
+    	
+    	
+    }
+    
+    this.getWork = function() { 
+		log('getWork');
+		if(this.parts.lenght > 0) {
+			var workBegin = this.parts[0].size;
+		
+			if(workBegin >= this.size) {
+				return null;
+			}
+			
+			if(this.parts.lenght > 1) {
+				var workSize = workBegin - this.parts[1].begin;
+			} else {
+				var workSize = workBegin - this.size;
+			}
+		
+		} else {
+			var workBegin = 0;
+			var workSize =this.size;
+		}
+		
+		if( workSize > yack_block_size) {
+			workSize = yack_block_size;
+		}
+		
+		return {'offset': workBegin, 'size': workSize};
+		 
+		
+    }
+    
 }
 
 function fileSha(file) {

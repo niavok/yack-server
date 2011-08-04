@@ -47,6 +47,16 @@ def command(request):
             
         data = serializers.serialize(format, [yackFile,], fields=('pk'))
         return HttpResponse(data,mimetype)
+
+    if cmd == 'getFileInfo':
+        pk = request.GET.get('pk','')
         
+        try:
+            yackFile = YackFile.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            raise Http404
+        
+        data = serializers.serialize(format, [yackFile,], fields=('pk', 'sha', 'size', 'parts'))
+        return HttpResponse(data,mimetype)
         
     raise Http404

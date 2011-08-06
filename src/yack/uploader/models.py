@@ -83,9 +83,7 @@ class YackFile(models.Model):
         second.delete()
         
     def check_finished(self):
-        print "Check finished"
         if self.upload_state == "uploaded":
-            print "Already finished"
             return
         
         if self.parts.count() == 1:
@@ -97,12 +95,9 @@ class YackFile(models.Model):
                 offset = 0
                 s = hashlib.sha1()
                 print tmp_name
-                print "size: %d" % self.size
                 while offset < self.size:
-                    print "offset: %d" % offset
                     subpart = part.get_subpart_by_offset(offset)
                     data = subpart.file.read()
-                    print "data len: %d" % len(data)
                     s.update(data)
                     tmp_file.write(data)
                     offset += subpart.size
@@ -112,7 +107,6 @@ class YackFile(models.Model):
                 if s.hexdigest() != self.sha:
                     print "Integrity check of whole file fail: %s excepted but %s received." % (s.hexdigest(), self.sha)
                     return 
-                print "Integrity check of whole file success: %s excepted but %s received." % (s.hexdigest(), self.sha)
                 
                 tmp_file  = open(tmp_name, "rb")
                 
@@ -124,10 +118,6 @@ class YackFile(models.Model):
                 
                 
                 print "File %s succefully uploaded" % self.sha
-            else:
-                print "Not finished, offset is %d and size is %d wheareas the excepted size is %d." %(part.offset, part.size, self.size)  
-        else:
-            print "Not finished, too many parts: %d" % self.parts.count()
                   
 
 class YackFilePart(models.Model):

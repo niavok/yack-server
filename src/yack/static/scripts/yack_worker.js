@@ -1,6 +1,6 @@
 importScripts('sha1.js')
 
-var yack_block_size = 500000; // 500 ko
+var yack_initial_block_size = 100000; // 100 ko
 var yack_file_read_size = 5000000; // 5 mo
 
 
@@ -115,6 +115,8 @@ function DistantFile(id) {
     
     	var reader = new FileReaderSync();
 
+		this.block_size = yack_initial_block_size
+
     	while(work = this.getWork()) {
 			var blob = file.blob.webkitSlice(work.offset, work.offset+work.size);
 			var raw = reader.readAsArrayBuffer(blob);
@@ -123,10 +125,12 @@ function DistantFile(id) {
 			sha.update(raw);
 			var sha_digest = rstr2hex(sha.digest());
 			
-			
+			timer = new Timer()
 			response = server.sendDataCommand('sendFilePart', {'pk': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
 			
 			log(response)
+			
+			this.optimizeBlockSize(timer.getTime())
 			
     		this.parts = response[0].parts
     	}
@@ -140,6 +144,24 @@ function DistantFile(id) {
     	this.parts = response[0].parts
     	
     }
+    
+    this.optimizeBlockSize = function(time) {
+    	log('lastTime: '+ time)
+		optimalBlockTime = 1000; // 1s
+		relativeRatio =  optimalBlockTime / time;
+		
+		if(relativeRatio > 10) {
+			relativeRatio = 10;
+		}
+		
+		if(relativeRatio < 0.1) {
+			relativeRatio = 0.1;
+		}
+		
+		//Set new siez block
+		this.block_size = parseInt(this.block_size * relativeRatio);
+		log('new size block: '+ this.block_size)
+	}
     
     this.getWork = function() { 
 		log('getWork');
@@ -163,8 +185,8 @@ function DistantFile(id) {
 			var workSize =this.size;
 		}
 		
-		if( workSize > yack_block_size) {
-			workSize = yack_block_size;
+		if( workSize > this.block_size) {
+			workSize = this.block_size;
 		}
 		
 		return {'offset': workBegin, 'size': workSize};
@@ -200,3 +222,27 @@ function fileSha(file) {
 function log(message) {
     self.postMessage({'cmd' : 'log', 'message' : message});
 }
+
+
+function Timer() {
+	this.start = new Date().getTime();
+
+	this.getTime = function() {
+		
+		var end = new Date().getTime();
+		log('getTime ' + end)
+		return end - this.start;
+	}
+
+}
+
+
+
+for (i = 0; i < 50000; ++i) {
+// do something
+}
+
+
+
+
+

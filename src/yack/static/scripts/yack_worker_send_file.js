@@ -11,9 +11,6 @@ self.addEventListener('message', function(e) {
         case 'init':
             init();
             break;
-        case 'add_files':
-            addFiles(data.files);
-            break;
         case 'add_file':
             addFile(data.file);
             break;
@@ -24,32 +21,34 @@ self.addEventListener('message', function(e) {
 var server;
 
 function init() {
-    log('yack_worker: init');
+    log('yack_worker_send_file: init');
     server = new Server();
 }
 
-
-
-function addFiles(files) {
-    log('yack_worker: add files');
-    
-    for (var i = 0, file; file = files[i]; i++) {
-        addFile(file);
-    }
-    
-}
-
 function addFile(file) {
+    log('yack_worker_send_file: add file');
+    self.postMessage({'cmd' : 'state', 'value' : 'analysing'});
     
-    sha = fileSha(file);
     
-    log('yack_worker: sha='+sha)
-    
+    if(!file.sha) {
+	    sha = fileSha(file, function (progress){
+	    	self.postMessage({'cmd' : 'progress', 'value' : progress});
+	    });
+	    
+	    self.postMessage({'cmd' : 'set_sha', 'sha' : sha});
+    } else {
+    	sha = file.sha;
+    }
     
     distantFile = server.createDistantFile(file.name, file.size, sha);
     
-    distantFile.send(file);
+    self.postMessage({'cmd' : 'state', 'value' : 'uploading'});
     
+    distantFile.send(file, function (progress){
+    	self.postMessage({'cmd' : 'progress', 'value' : progress});
+    });
+    
+    self.postMessage({'cmd' : 'state', 'value' : 'uploaded'});
     
 }
 
@@ -73,10 +72,8 @@ function Server() {
         for(param in params) {
             url += '&'+param+'='+params[param];
         }
-        log('yack_worker: send '+url);
         xhr_object.open("GET", url , false);
         xhr_object.send(null);
-        log(xhr_object.responseText);
         return eval(xhr_object.responseText);
 
     }
@@ -89,11 +86,9 @@ function Server() {
         for(param in params) {
             url += '&'+param+'='+params[param];
         }
-        log('yack_worker: send '+url);
         xhr_object.open("POST", url , false);
         xhr_object.setRequestHeader("X-CSRFToken", this.csrfToken);
         xhr_object.send(data);
-        log(xhr_object.responseText);
         return eval(xhr_object.responseText);
 
     }
@@ -110,7 +105,7 @@ function DistantFile(id) {
     
     this.id = id;
     
-    this.send = function(file) {
+    this.send = function(file, progressCallback) {
     	this.refresh()
     
     	var reader = new FileReaderSync();
@@ -128,12 +123,23 @@ function DistantFile(id) {
 			timer = new Timer()
 			response = server.sendDataCommand('sendFilePart', {'pk': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
 			
-			log(response)
-			
 			this.optimizeBlockSize(timer.getTime())
 			
     		this.parts = response[0].parts
+    		
+    		// Update progress
+    		progressCallback(this.getProgress())
     	}
+    }
+    
+    this.getProgress = function() {
+    	var sendSize = 0;
+    	
+    	for(var i = 0; i < this.parts.length; i++) {
+    		sendSize += this.parts[i].size;
+    	}
+    	
+    	return sendSize / this.size;
     }
         
     this.refresh = function() { 
@@ -146,8 +152,7 @@ function DistantFile(id) {
     }
     
     this.optimizeBlockSize = function(time) {
-    	log('lastTime: '+ time)
-		optimalBlockTime = 1000; // 1s
+    	optimalBlockTime = 5000; // 5s
 		relativeRatio =  optimalBlockTime / time;
 		
 		if(relativeRatio > 10) {
@@ -160,13 +165,10 @@ function DistantFile(id) {
 		
 		//Set new siez block
 		this.block_size = parseInt(this.block_size * relativeRatio);
-		log('new size block: '+ this.block_size)
 	}
     
     this.getWork = function() { 
-		log('getWork');
 		if(this.parts.length > 0) {
-			log('parts yet');
 			var workBegin = this.parts[0].size;
 		
 			if(workBegin >= this.size) {
@@ -180,7 +182,6 @@ function DistantFile(id) {
 			}
 		
 		} else {
-			log('no parts yet');
 			var workBegin = 0;
 			var workSize =this.size;
 		}
@@ -196,18 +197,22 @@ function DistantFile(id) {
     
 }
 
-function fileSha(file) {
+function fileSha(file, progressCallback) {
      var fileSize = file.size
     
     var start = new Date().getTime();
     var sha = new Sha1();
     var reader = new FileReaderSync();
     var i;
+    
     for (i = 0; i+yack_file_read_size <= fileSize; i+=yack_file_read_size) {
         var blob = file.blob.webkitSlice(i, i+yack_file_read_size);
         var raw = reader.readAsArrayBuffer(blob);
         
         sha.update(raw);
+        
+        progressCallback(i/fileSize)
+        
     }
     var blob = file.blob.webkitSlice(i, fileSize);
     var lastRaw = reader.readAsArrayBuffer(blob);
@@ -230,19 +235,10 @@ function Timer() {
 	this.getTime = function() {
 		
 		var end = new Date().getTime();
-		log('getTime ' + end)
 		return end - this.start;
 	}
 
 }
-
-
-
-for (i = 0; i < 50000; ++i) {
-// do something
-}
-
-
 
 
 

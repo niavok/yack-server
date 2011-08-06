@@ -113,6 +113,8 @@ function DistantFile(id) {
 		this.block_size = yack_initial_block_size
 
     	while(work = this.getWork()) {
+			
+			timer = new Timer()
 			var blob = file.blob.webkitSlice(work.offset, work.offset+work.size);
 			var raw = reader.readAsArrayBuffer(blob);
 			
@@ -120,7 +122,7 @@ function DistantFile(id) {
 			sha.update(raw);
 			var sha_digest = rstr2hex(sha.digest());
 			
-			timer = new Timer()
+			
 			response = server.sendDataCommand('sendFilePart', {'pk': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
 			
 			this.optimizeBlockSize(timer.getTime())

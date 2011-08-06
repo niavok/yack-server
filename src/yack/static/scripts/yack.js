@@ -107,6 +107,9 @@ function yack_init() {
     
     document.getElementById('resume_all').onclick = yack_resume_all;
     document.getElementById('pause_all').onclick = yack_pause_all;
+    
+    dlList = new YackDownloadList(document.getElementById('files_to_download'));
+    dlList.update()
 }
 
 function yack_pause_all() {
@@ -123,6 +126,54 @@ function yack_resume_all() {
 	}
 }
 
+
+function YackDownloadList(rootElement){
+
+	this.rootElement = rootElement;
+	
+	this.update = function() {
+		
+		var url = "/yack/command?format=json&cmd=getFileList";
+		var goodThis = this
+	
+		yack_ajaxCall(url, function(response) {
+			
+			for(var i=0; i< response.length; i++) {
+				file = response[i];
+				goodThis.addFileBlock(file.name, file.size,  file.description, file.link)
+			}
+		
+		});
+	}
+	
+	this.addFileBlock = function(name, size, description, link) {
+		var block = '';
+		block+='<div>';
+		block+='<a href="'+link+'">'+name+'</a> - Size: '+size;
+		block+="<div>";
+		
+		this.rootElement.innerHTML += block;
+	}
+	
+}
+
+function  yack_ajaxCall(url, callback) {
+        var xhr_object = new XMLHttpRequest();
+        
+        xhr_object.onreadystatechange = function(){                   
+        	if (xhr_object.readyState == 4) {
+        		 callback(eval(xhr_object.responseText)); 
+			}
+		}    
+		
+        xhr_object.open("GET", url , true);
+        xhr_object.send(null);
+        
+        return eval(xhr_object.responseText);
+
+    }
+    
+	
 
 yack_init();
 

@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     # url(r'^yack/', include('yack.foo.urls')),
     url(r'^$', 'uploader.views.index'),
     url(r'^yack/command$', 'uploader.views.command'),
+    url(r'^file', 'uploader.views.send_file'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

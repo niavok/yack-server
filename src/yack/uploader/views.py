@@ -6,7 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import csrf_exempt
-
+from django.core.servers.basehttp import FileWrapper
+import os
 import json
 
 from models import YackFile
@@ -19,6 +20,22 @@ def index(request):
     c = RequestContext(request, {
     })
     return HttpResponse(t.render(c))
+
+
+def send_file(request):
+    pk = request.GET.get('pk','')
+    
+    try:
+        yackFile = YackFile.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        raise Http404
+    
+                                    
+    wrapper = FileWrapper(yackFile.file.file)
+    response = HttpResponse(wrapper, content_type='audio/ogg')
+    response['Content-Length'] = yackFile.file.size
+    return response
+
 
 #TODO: make csrf works
 @csrf_exempt
@@ -97,6 +114,15 @@ def command(request):
         data = json.dumps([{'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
         
         return HttpResponse(data,mimetype)
+    
+    if cmd == 'getFileList':
         
+        files = YackFile.objects.all()
+        
+        
+        
+        
+        data = json.dumps([{'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }  for yackFile in files ])
+        return HttpResponse(data,mimetype)
         
     raise Http404

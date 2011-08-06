@@ -51,7 +51,7 @@ class YackFile(models.Model):
     def add_sub_part_in_part(self, subpart):
         
         for part in self.parts.all():
-            if part.offset < subpart.offset <= part.offset + part.size or part.offset < subpart.offset+subpart.size <= part.offset + part.size:
+            if part.offset < subpart.offset <= part.offset + part.size or part.offset < subpart.offset + subpart.size <= part.offset + part.size:
                 part.add_subpart(subpart)
                 self.save()
                 return
@@ -67,9 +67,9 @@ class YackFile(models.Model):
         self.save()
         
     def compact_parts(self):
-        for i in range(self.parts.count()-1):
+        for i in range(self.parts.count() - 1):
             first = self.parts [i]
-            second = self.parts [i+1]
+            second = self.parts [i + 1]
             if first.offset + first.size >= second.offset:
                 self.merge_parts(first, second)
                 self.compact_parts()
@@ -111,7 +111,7 @@ class YackFile(models.Model):
                     print "Integrity check of whole file fail: %s excepted but %s received." % (s.hexdigest(), self.sha)
                     return 
                 
-                tmp_file  = open(tmp_name, "rb")
+                tmp_file = open(tmp_name, "rb")
                 
                 
                 self.file.save(self.sha, File(tmp_file))
@@ -125,7 +125,19 @@ class YackFile(models.Model):
                 
                 
                 print "File %s succefully uploaded" % self.sha
-                  
+    
+    def get_progress(self):
+        if self.upload_state == "uploaded":
+            return 1;
+        
+        uploaded = 0;
+        
+        for part in self.parts.all():
+            uploaded += part.size
+        
+        return float(uploaded)/self.size 
+        
+                    
 
 class YackFilePart(models.Model):
     offset = models.IntegerField()
@@ -136,9 +148,9 @@ class YackFilePart(models.Model):
         
         if self.offset > subpart.offset:
             self.size = self.size + self.offset - subpart.offset
-            self.offset =  subpart.offset
+            self.offset = subpart.offset
             
-        if self.offset+self.size < subpart.offset + subpart.size:
+        if self.offset + self.size < subpart.offset + subpart.size:
             self.size = subpart.offset - self.offset + subpart.size
             
         self.subparts.add(subpart)

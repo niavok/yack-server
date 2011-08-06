@@ -222,7 +222,11 @@ function YackDownloadList(rootElement){
 			
 			for(var i=0; i< response.length; i++) {
 				file = response[i];
-				self.addFileBlock(file.name, file.size,  file.description, file.link)
+				if(file.progress == 1) {
+					self.addFileBlock(file.name, file.size,  file.description, file.link)
+				} else {
+					console.log("Interupted file : "+file.name+" at "+file.progress*100+" %");
+				}
 			}
 		
 		});

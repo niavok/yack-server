@@ -121,7 +121,7 @@ def command(request):
         
         files = YackFile.objects.all()
         
-        data = json.dumps([{'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }  for yackFile in files ])
+        data = json.dumps([{'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }  for yackFile in files ])
         return HttpResponse(data,mimetype)
     
     if cmd == 'getFileLink':

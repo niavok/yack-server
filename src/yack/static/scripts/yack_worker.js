@@ -55,6 +55,8 @@ function addFile(file) {
 
 function Server() {
 
+	
+
     this.createDistantFile = function(name, size, sha) {
           response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
          
@@ -89,12 +91,19 @@ function Server() {
         }
         log('yack_worker: send '+url);
         xhr_object.open("POST", url , false);
+        xhr_object.setRequestHeader("X-CSRFToken", this.csrfToken);
         xhr_object.send(data);
         log(xhr_object.responseText);
         return eval(xhr_object.responseText);
 
     }
     
+    this.getCsrfToken = function() {
+    	response = this.sendCommand('getCsrfToken', {})
+    	this.csrfToken = response.token
+    }
+    
+    this.getCsrfToken();
 }
 
 function DistantFile(id) {
@@ -105,7 +114,7 @@ function DistantFile(id) {
     	this.refresh()
     
     	var reader = new FileReaderSync();
-    
+
     	while(work = this.getWork()) {
 			var blob = file.blob.webkitSlice(work.offset, work.size);
 			var raw = reader.readAsArrayBuffer(blob);
@@ -118,37 +127,38 @@ function DistantFile(id) {
 			response = server.sendDataCommand('sendFilePart', {'pk': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
 			
 			log(response)
+			
+    		this.parts = response[0].parts
     	}
     }
-    
+        
     this.refresh = function() { 
-    	log("pk="+this.id);
     	response = server.sendCommand('getFileInfo', {'pk': this.id});
     	
-    	this.size = response[0].fields.size
-    	this.sha = response[0].fields.sha
-    	this.parts = response[0].fields.parts
-    	
-    	
+    	this.size = response[0].size
+    	this.sha = response[0].sha
+    	this.parts = response[0].parts
     	
     }
     
     this.getWork = function() { 
 		log('getWork');
-		if(this.parts.lenght > 0) {
+		if(this.parts.length > 0) {
+			log('parts yet');
 			var workBegin = this.parts[0].size;
 		
 			if(workBegin >= this.size) {
 				return null;
 			}
 			
-			if(this.parts.lenght > 1) {
-				var workSize = workBegin - this.parts[1].begin;
+			if(this.parts.length > 1) {
+				var workSize = this.parts[1].begin - workBegin;
 			} else {
-				var workSize = workBegin - this.size;
+				var workSize = this.size- workBegin;
 			}
 		
 		} else {
+			log('no parts yet');
 			var workBegin = 0;
 			var workSize =this.size;
 		}

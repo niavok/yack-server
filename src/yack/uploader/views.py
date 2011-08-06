@@ -3,8 +3,15 @@ from django.http import HttpResponse
 from django.http import Http404
 from django.core import serializers
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.context_processors import csrf
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
+import json
 
 from models import YackFile
+from models import YackFileSubPart
+from models import YackFilePart
 
 def index(request):
     t = loader.get_template('uploader/index.html')
@@ -12,16 +19,22 @@ def index(request):
     c = RequestContext(request, {
     })
     return HttpResponse(t.render(c))
-    
+
+#TODO: make csrf works
+@csrf_exempt
 def command(request):
     cmd = request.GET.get('cmd','')
     format = request.GET.get('format','')
     
     if format == 'xml':
-            mimetype = 'application/xml'
+        mimetype = 'application/xml'
     if format == 'json':
-            mimetype = 'application/javascript'
+        mimetype = 'application/javascript'
   
+    if cmd == 'getCsrfToken':
+        c = {}
+        c.update(csrf(request))
+        return HttpResponse('[{"csrf_token": "%s"}]' % c["csrf_token"] ,mimetype)
     
     if cmd == 'createFile':
         # The client ask to create a new file
@@ -56,7 +69,42 @@ def command(request):
         except ObjectDoesNotExist:
             raise Http404
         
-        data = serializers.serialize(format, [yackFile,], fields=('pk', 'sha', 'size', 'parts'))
+        
+        
+        data = json.dumps([{'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
+        
         return HttpResponse(data,mimetype)
+        
+    if cmd == 'sendFilePart':
+        
+        pk = request.GET.get('pk','')
+        sha = request.GET.get('sha','')
+        size = int(request.GET.get('size',''))
+        offset = int(request.GET.get('offset',''))
+        data =  request.raw_post_data
+        
+        try:
+            yackFile = YackFile.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            raise Http404
+        
+        
+            
+        subPart = YackFileSubPart()
+        subPart.offset = offset
+        subPart.size = size
+        subPart.sha = sha
+        fileData = ContentFile(data)
+        subPart.file.save(sha, fileData)
+        subPart.save()
+        
+        yackFile.add_sub_part(subPart)
+        
+        yackFile.compact_parts()
+        
+        data = json.dumps([{'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
+        
+        return HttpResponse(data,mimetype)
+        
         
     raise Http404

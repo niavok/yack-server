@@ -32,7 +32,8 @@ def send_file(request):
     
                                     
     wrapper = FileWrapper(yackFile.file.file)
-    response = HttpResponse(wrapper, content_type='audio/ogg')
+    response = HttpResponse(wrapper, content_type='application/binary')
+    response['Content-Disposition'] = 'inline; filename='+yackFile.name
     response['Content-Length'] = yackFile.file.size
     return response
 
@@ -119,10 +120,18 @@ def command(request):
         
         files = YackFile.objects.all()
         
-        
-        
-        
         data = json.dumps([{'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }  for yackFile in files ])
+        return HttpResponse(data,mimetype)
+    
+    if cmd == 'getFileLink':
+        
+        pk = request.GET.get('pk','')
+        try:
+            yackFile = YackFile.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            raise Http404
+        
+        data = json.dumps([{'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }])
         return HttpResponse(data,mimetype)
         
     raise Http404

@@ -35,12 +35,14 @@ function addFile(file) {
 	    	self.postMessage({'cmd' : 'progress', 'value' : progress});
 	    });
 	    
-	    self.postMessage({'cmd' : 'set_sha', 'sha' : sha});
+	    self.postMessage({'cmd' : 'set_sha', 'value' : sha});
     } else {
     	sha = file.sha;
     }
     
     distantFile = server.createDistantFile(file.name, file.size, sha);
+    self.postMessage({'cmd' : 'set_id', 'value' : distantFile.id});
+    
     
     self.postMessage({'cmd' : 'state', 'value' : 'uploading'});
     
@@ -154,7 +156,7 @@ function DistantFile(id) {
     }
     
     this.optimizeBlockSize = function(time) {
-    	optimalBlockTime = 5000; // 5s
+    	optimalBlockTime = 2000; // 2s
 		relativeRatio =  optimalBlockTime / time;
 		
 		if(relativeRatio > 10) {

@@ -3,7 +3,7 @@
 var yack_input;
 var yack_workList;
 var yack_worker;
-
+var yack_dlList;
 
 function yack_checkApiCompatibility() {
     // Check for the various File API support.
@@ -49,8 +49,7 @@ function addFiles(files) {
 
 function YackTask(file) {
 
-	this.id = taskNextId++;
-	this.file = file;
+	
 
 	this.worker_callback = function (e) {
 	    var data = e.data;
@@ -59,14 +58,16 @@ function YackTask(file) {
 	            console.log('Task '+this.parent.id +'- '+data.message);
 	            break;
 	        case 'state':
-	            console.log('Task '+this.parent.id +'- State: '+data.value);
+	            this.parent.setState(data.value)
 	            break;
 	        case 'progress':
-	            console.log('Task '+this.parent.id +'- Progress: '+data.value);
+	            this.parent.setProgress(data.value)
 	            break;
             case 'set_sha':
-	            console.log('Task '+this.parent.id +'- Sha: '+data.sha);
-	            this.parent.file['sha'] = data.sha;
+	            this.parent.file['sha'] = data.value;
+	            break;
+            case 'set_id':
+	            this.parent['distantId'] = data.value;
 	            break;
 	    }       
 	}
@@ -89,7 +90,86 @@ function YackTask(file) {
 		console.log("task pause")
 		this.worker.terminate()
 		this.running = false;
+		if(this.state == "analysing") {
+			this.setProgress(-1);
+		}
+		this.setState("paused")
+		
 	} 
+	
+	this.init = function(file) {
+		this.id = taskNextId++;
+		this.file = file;
+		this.addFileBlock()
+	}
+	
+	
+	this.addFileBlock = function() {
+		var block = '';
+		block+='<div id=task_'+this.id+'>';
+		block+='<p>'+this.file.name+' - Size: '+yack_render_size(this.file.size)+'</p>';
+		block+='<p>State: <span id=task_'+this.id+'_state>Analyzing</span> <span id=task_'+this.id+'_progress>0 %</span></p>';
+		block+='<a href="#" id="task_'+this.id+'_pause" >Pause</a>';
+		block+='<a href="#" id="task_'+this.id+'_resume" ></a>';
+		block+="<div>";
+		
+		document.getElementById('files_to_upload').innerHTML += block;
+		self = this;
+		
+		document.getElementById('task_'+this.id+'_resume').onclick = function() {
+			self.start();
+		}
+		document.getElementById('task_'+this.id+'_pause').onclick = function() {
+			self.pause();
+		}
+	}
+	
+	this.setState = function(state) {
+		this.state = state;
+		
+		var stateElement = document.getElementById('task_'+this.id+'_state');
+		
+		if(state == "analysing") {
+			stateElement.innerHTML = "Analysing";
+			document.getElementById('task_'+this.id+'_pause').innerHTML = "Pause";
+			document.getElementById('task_'+this.id+'_resume').innerHTML = "";
+		} else if(state == "paused") {
+			stateElement.innerHTML = "Paused";
+			document.getElementById('task_'+this.id+'_pause').innerHTML = "";
+			document.getElementById('task_'+this.id+'_resume').innerHTML = "Resume";
+		} else if(state == "uploading") {
+			stateElement.innerHTML = "Uploading";
+			document.getElementById('task_'+this.id+'_pause').innerHTML = "Pause";
+			document.getElementById('task_'+this.id+'_resume').innerHTML = "";
+		} else if(state == "uploaded") {
+			stateElement.innerHTML = "Uploaded";
+			this.setProgress(-1);
+			yack_dlList.addFileById(this.distantId);
+			this.delete()
+		}
+		
+	}
+	
+	this.setProgress = function(progress) {
+		this.progress = progress;
+		
+		var progressElement = document.getElementById('task_'+this.id+'_progress');
+		
+		if(progress < 0) {
+			progressElement.innerHTML = "";
+		} else {
+			progressElement.innerHTML = parseInt(progress*100) + ' %';
+		}
+		
+		
+	}
+	
+	this.delete = function(progress) {
+		taskList[this.id] = null;
+		document.getElementById('files_to_upload').removeChild(document.getElementById('task_'+this.id));
+	}
+	
+	this.init(file)
 }
 
 function yack_init() {
@@ -108,8 +188,8 @@ function yack_init() {
     document.getElementById('resume_all').onclick = yack_resume_all;
     document.getElementById('pause_all').onclick = yack_pause_all;
     
-    dlList = new YackDownloadList(document.getElementById('files_to_download'));
-    dlList.update()
+    yack_dlList = new YackDownloadList(document.getElementById('files_to_download'));
+    yack_dlList.update()
 }
 
 function yack_pause_all() {
@@ -117,6 +197,7 @@ function yack_pause_all() {
 	for (var i = 0, file; task = taskList[i]; i++) {
 		task.pause()
 	}
+	return false;
 }
 
 
@@ -124,6 +205,7 @@ function yack_resume_all() {
 	for (var i = 0, file; task = taskList[i]; i++) {
 		task.start()
 	}
+	return false;
 }
 
 
@@ -134,13 +216,13 @@ function YackDownloadList(rootElement){
 	this.update = function() {
 		
 		var url = "/yack/command?format=json&cmd=getFileList";
-		var goodThis = this
+		var self = this
 	
 		yack_ajaxCall(url, function(response) {
 			
 			for(var i=0; i< response.length; i++) {
 				file = response[i];
-				goodThis.addFileBlock(file.name, file.size,  file.description, file.link)
+				self.addFileBlock(file.name, file.size,  file.description, file.link)
 			}
 		
 		});
@@ -149,29 +231,68 @@ function YackDownloadList(rootElement){
 	this.addFileBlock = function(name, size, description, link) {
 		var block = '';
 		block+='<div>';
-		block+='<a href="'+link+'">'+name+'</a> - Size: '+size;
+		block+='<a href="'+link+'">'+name+'</a> - Size: '+yack_render_size(size);
 		block+="<div>";
 		
-		this.rootElement.innerHTML += block;
+		this.rootElement.innerHTML = block + this.rootElement.innerHTML;
+	}
+	
+	this.addFileById = function(id) {
+		var url = "/yack/command?format=json&cmd=getFileLink&pk="+id;
+		var self = this
+	
+		yack_ajaxCall(url, function(response) {
+			
+			self.addFileBlock(response[0].name, response[0].size,  response[0].description, response[0].link);
+			
+		});
 	}
 	
 }
 
-function  yack_ajaxCall(url, callback) {
-        var xhr_object = new XMLHttpRequest();
-        
-        xhr_object.onreadystatechange = function(){                   
-        	if (xhr_object.readyState == 4) {
-        		 callback(eval(xhr_object.responseText)); 
-			}
-		}    
-		
-        xhr_object.open("GET", url , true);
-        xhr_object.send(null);
-        
-        return eval(xhr_object.responseText);
 
-    }
+function yack_render_size(size) {
+	if(size > 1000000000) {
+		value = size/1000000000
+		unit = "Go"
+	} else if(size > 1000000) {
+		value = size/1000000
+		unit = "Mo"
+	} else if(size > 1000) {
+		value = size/1000
+		unit = "Ko"
+	} else {
+		value = size
+		unit = "bytes"
+	}
+	
+	if(value >= 100) {
+		displayValue = parseInt(value);
+	} else if(value >= 10) {
+		displayValue = parseInt(value*10)/10;
+	} else  {
+		displayValue = parseInt(value*100)/100;
+	}
+	
+	return displayValue + " "+ unit;
+
+}		
+
+function  yack_ajaxCall(url, callback) {
+    var xhr_object = new XMLHttpRequest();
+    
+    xhr_object.onreadystatechange = function(){                   
+    	if (xhr_object.readyState == 4) {
+    		 callback(eval(xhr_object.responseText));
+		}
+	}    
+	
+    xhr_object.open("GET", url , true);
+    xhr_object.send(null);
+    
+    return eval(xhr_object.responseText);
+
+}
     
 	
 

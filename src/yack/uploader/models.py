@@ -116,6 +116,8 @@ class YackFile(models.Model):
                 self.upload_state = "uploaded"
                 self.save()
                 
+                os.remove(tmp_name)
+                
                 
                 print "File %s succefully uploaded" % self.sha
                   

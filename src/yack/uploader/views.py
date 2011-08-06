@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import csrf_exempt
-from django.core.files.base import ContentFile
+
 import json
 
 from models import YackFile
@@ -48,6 +48,7 @@ def command(request):
         
         try:
             yackFile = YackFile.objects.get(sha=sha)
+            yackFile.check_finished()
             print 'The file already exist'
         except ObjectDoesNotExist:
             print 'The file doesn\'t exist'
@@ -89,18 +90,9 @@ def command(request):
             raise Http404
         
         
-            
-        subPart = YackFileSubPart()
-        subPart.offset = offset
-        subPart.size = size
-        subPart.sha = sha
-        fileData = ContentFile(data)
-        subPart.file.save(sha, fileData)
-        subPart.save()
+        yackFile.add_sub_part(offset, size, sha, data)
         
-        yackFile.add_sub_part(subPart)
         
-        yackFile.compact_parts()
         
         data = json.dumps([{'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
         

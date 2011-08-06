@@ -116,7 +116,7 @@ function DistantFile(id) {
     	var reader = new FileReaderSync();
 
     	while(work = this.getWork()) {
-			var blob = file.blob.webkitSlice(work.offset, work.size);
+			var blob = file.blob.webkitSlice(work.offset, work.offset+work.size);
 			var raw = reader.readAsArrayBuffer(blob);
 			
 			var sha = new Sha1();

@@ -1,4 +1,9 @@
 from django.db import models
+import hashlib
+from django.core.files.base import ContentFile
+import tempfile
+import os
+from django.core.files import File
 
 class YackPack(models.Model):
     name = models.CharField(max_length=200)
@@ -13,13 +18,34 @@ class YackFile(models.Model):
     descripyion = models.CharField(max_length=800)
     size = models.IntegerField()
     sha = models.CharField(max_length=32)
+    upload_state = models.CharField(max_length=32)
     parts = models.ManyToManyField("YackFilePart")
-    
+    file = models.FileField(upload_to="yack_files")
     
     def __unicode__(self):
         return self.name
     
-    def add_sub_part(self, subpart):
+    def add_sub_part(self, offset, size, sha, data):
+        
+        #check integrity
+        s = hashlib.sha1()
+        s.update(data)
+        if s.hexdigest() != sha:
+            print "Integrity check of new part fail: %s excepted but %s received." % (s.hexdigest(), sha)
+            return 
+        
+        subpart = YackFileSubPart()
+        subpart.offset = offset
+        subpart.size = size
+        subpart.sha = sha
+        fileData = ContentFile(data)
+        subpart.file.save(sha, fileData)
+        subpart.save()
+        self.add_sub_part_in_part(subpart)
+        self.compact_parts()
+        self.check_finished()
+        
+    def add_sub_part_in_part(self, subpart):
         
         for part in self.parts.all():
             if part.offset < subpart.offset <= part.offset + part.size or part.offset < subpart.offset+subpart.size <= part.offset + part.size:
@@ -38,9 +64,6 @@ class YackFile(models.Model):
         self.save()
         
     def compact_parts(self):
-        
-        
-        
         for i in range(self.parts.count()-1):
             first = self.parts [i]
             second = self.parts [i+1]
@@ -58,6 +81,54 @@ class YackFile(models.Model):
         
         first.save()
         second.delete()
+        
+    def check_finished(self):
+        print "Check finished"
+        if self.upload_state == "uploaded":
+            print "Already finished"
+            return
+        
+        if self.parts.count() == 1:
+            part = self.parts.all()[0]
+            if part.offset == 0 and part.size == self.size:
+                #generate file
+                tmp, tmp_name = tempfile.mkstemp(suffix=".tmp", prefix="yack_")
+                tmp_file = os.fdopen(tmp, "wb")
+                offset = 0
+                s = hashlib.sha1()
+                print tmp_name
+                print "size: %d" % self.size
+                while offset < self.size:
+                    print "offset: %d" % offset
+                    subpart = part.get_subpart_by_offset(offset)
+                    data = subpart.file.read()
+                    print "data len: %d" % len(data)
+                    s.update(data)
+                    tmp_file.write(data)
+                    offset += subpart.size
+                
+                tmp_file.close()
+                
+                if s.hexdigest() != self.sha:
+                    print "Integrity check of whole file fail: %s excepted but %s received." % (s.hexdigest(), self.sha)
+                    return 
+                print "Integrity check of whole file success: %s excepted but %s received." % (s.hexdigest(), self.sha)
+                
+                tmp_file  = open(tmp_name, "rb")
+                
+                
+                self.file.save(self.sha, File(tmp_file))
+                
+                self.upload_state = "uploaded"
+                self.save()
+                
+                
+                print "File %s succefully uploaded" % self.sha
+            else:
+                print "Not finished, offset is %d and size is %d wheareas the excepted size is %d." %(part.offset, part.size, self.size)  
+        else:
+            print "Not finished, too many parts: %d" % self.parts.count()
+                  
 
 class YackFilePart(models.Model):
     offset = models.IntegerField()
@@ -75,6 +146,11 @@ class YackFilePart(models.Model):
             
         self.subparts.add(subpart)
         self.save()
+        
+    def get_subpart_by_offset(self, offset):
+        for subpart in self.subparts.all():
+            if subpart.offset == offset:
+                return subpart
 
 class YackFileSubPart(models.Model):
     offset = models.IntegerField()

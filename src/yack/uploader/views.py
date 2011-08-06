@@ -72,6 +72,7 @@ def command(request):
             print 'The file doesn\'t exist'
         
             yackFile = YackFile()
+            yackFile.upload_state="uploading"
             yackFile.name = name
             yackFile.size = size
             yackFile.sha = sha
@@ -90,7 +91,7 @@ def command(request):
         
         
         
-        data = json.dumps([{'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
+        data = json.dumps([{'upload_state': yackFile.upload_state, 'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
         
         return HttpResponse(data,mimetype)
         
@@ -112,7 +113,7 @@ def command(request):
         
         
         
-        data = json.dumps([{'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
+        data = json.dumps([{'upload_state': yackFile.upload_state, 'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
         
         return HttpResponse(data,mimetype)
     

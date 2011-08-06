@@ -130,7 +130,7 @@ function DistantFile(id) {
 			this.optimizeBlockSize(timer.getTime())
 			
     		this.parts = response[0].parts
-    		
+    		this.state = response[0].upload_state
     		// Update progress
     		progressCallback(this.getProgress())
     	}
@@ -151,6 +151,7 @@ function DistantFile(id) {
     	
     	this.size = response[0].size
     	this.sha = response[0].sha
+    	this.state = response[0].upload_state
     	this.parts = response[0].parts
     	
     }
@@ -171,7 +172,11 @@ function DistantFile(id) {
 		this.block_size = parseInt(this.block_size * relativeRatio);
 	}
     
-    this.getWork = function() { 
+    this.getWork = function() {
+    	if(this.state == "uploaded") {
+    		return null;
+    	}
+    
 		if(this.parts.length > 0) {
 			var workBegin = this.parts[0].size;
 		

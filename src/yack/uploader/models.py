@@ -27,6 +27,9 @@ class YackFile(models.Model):
     
     def add_sub_part(self, offset, size, sha, data):
         
+        if self.upload_state == "uploaded":
+            return
+        
         #check integrity
         s = hashlib.sha1()
         s.update(data)
@@ -118,6 +121,8 @@ class YackFile(models.Model):
                 
                 os.remove(tmp_name)
                 
+                part.delete()
+                
                 
                 print "File %s succefully uploaded" % self.sha
                   
@@ -143,9 +148,22 @@ class YackFilePart(models.Model):
         for subpart in self.subparts.all():
             if subpart.offset == offset:
                 return subpart
+            
+    def delete(self):
+        print "YackFilePart"
+        for subpart in self.subparts.all():
+            subpart.delete();
+        super(YackFilePart, self).delete()
 
 class YackFileSubPart(models.Model):
     offset = models.IntegerField()
     size = models.IntegerField()
     file = models.FileField(upload_to="yack_sub_parts")
-    sha = models.CharField(max_length=32)    
+    sha = models.CharField(max_length=32)
+    
+    def delete(self):
+        print "YackFileSubPart"
+        os.remove(self.file.path)
+        super(YackFileSubPart, self).delete()
+    
+        

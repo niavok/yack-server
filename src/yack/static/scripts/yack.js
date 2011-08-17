@@ -51,7 +51,9 @@ function Yack() {
 
     this.checkApiCompatibility = function() {
         // Check for the various File API support.
+
         if (window.File && window.FileReader && window.FileList && window.Blob) {
+            
             // Great success! All the File APIs are supported.
         } else {
             alert('The File APIs are not fully supported in this browser.');
@@ -80,7 +82,17 @@ function Yack() {
         var filesStruct = [];
         
         for (var i = 0, file; file = files[i]; i++) {
-            filesStruct[i] = {'name' : file.name , 'size' : file.size, 'blob' : file.webkitSlice(0,file.size)}
+            if(file.slice) {
+                slice = file.slice(0,file.size);
+            } else if(file.webkitSlice) {
+                slice = file.webkitSlice(0,file.size);
+            } else {
+                // Fail to find slice method
+                return;
+            }
+
+ 
+           filesStruct[i] = {'name' : file.name , 'size' : file.size, 'blob' : slice}
         }
         
         self.addFiles(filesStruct);

@@ -74,7 +74,9 @@ function YackUploadList(rootElement){
     }
 
     this.deleteInterrupted = function(id) {
-		document.getElementById('files_to_upload').removeChild(document.getElementById('interrupted_'+id));
+        if(document.getElementById('interrupted_'+id)) {
+    		document.getElementById('files_to_upload').removeChild(document.getElementById('interrupted_'+id));
+        }
 	}	
 }
 

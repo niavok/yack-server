@@ -21,7 +21,7 @@ function YackTask(file, listener) {
             case 'set_id':
 	            console.log('Task '+this.parent.id +'- set id '+data.value);
                 
-	            this.parent['distantId'] = data.value;
+	            this.parent.setFileId(data.value);
 	            break;
 	    }       
 	}
@@ -66,9 +66,14 @@ function YackTask(file, listener) {
 	this.setProgress = function(progress) {
 		this.progress = progress;
         this.listener.taskProgressChanged(this)
-		
-		
 	}
+
+	this.setFileId = function(id) {
+		this.distantId = id;
+        this.listener.taskFileIdChanged(this)
+	}
+
+                
 	
 	this.init(file, listener)
 }

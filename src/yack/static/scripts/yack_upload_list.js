@@ -62,5 +62,19 @@ function YackUploadList(rootElement){
 		document.getElementById('files_to_upload').removeChild(document.getElementById('task_'+task.id));
 	}	
 
+
+    this.addInterruptedFile = function(file) {
+		var block = '';
+        block+='<div id=interrupted_'+file.id+'>';
+		block+='<p>'+file.name+' - Size: '+yack_render_size(file.size)+'</p>';
+		block+='<p>State: <span>Interrupted</span> <span>'+parseInt(file.progress*100)+' %</span></p>';
+		block+='<p>Choose the file to continue upload.</p>';
+		block+="<div>";        
+		document.getElementById('files_to_upload').innerHTML += block;
+    }
+
+    this.deleteInterrupted = function(id) {
+		document.getElementById('files_to_upload').removeChild(document.getElementById('interrupted_'+id));
+	}	
 }
 

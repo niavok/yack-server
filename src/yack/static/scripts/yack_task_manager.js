@@ -45,5 +45,9 @@ function YackTaskManager(app){
     this.taskProgressChanged = function(task) {
         this.uploadList.progressChanged(task);
     }
+
+    this.taskFileIdChanged = function(task) {
+        this.uploadList.deleteInterrupted(task.distantId);
+    }
 }
 

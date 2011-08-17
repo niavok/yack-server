@@ -28,6 +28,24 @@ function Yack() {
         this.downloadList.clear()
         this.uploadList.clear()
 
+        //Get current file list
+        var url = "/yack/command?format=json&cmd=getFileList";
+		var self = this
+	
+		yack_ajaxCall(url, function(response) {
+			
+			for(var i=0; i< response.length; i++) {
+				file = response[i];
+				if(file.progress == 1) {
+                    // Uploaded file
+					self.downloadList.addFileByDescription(file)
+				} else {
+                    // Not uploaded file
+					self.uploadList.addInterruptedFile(file)
+				}
+			}
+		
+		});
 
     }
 

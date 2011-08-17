@@ -5,26 +5,7 @@ function YackDownloadList(rootElement){
     this.clear = function(){
         this.rootElement.innerHTML = "";
     }
-	
-	this.update = function() {
-		
-		var url = "/yack/command?format=json&cmd=getFileList";
-		var self = this
-	
-		yack_ajaxCall(url, function(response) {
-			
-			for(var i=0; i< response.length; i++) {
-				file = response[i];
-				if(file.progress == 1) {
-					self.addFileBlock(file.name, file.size,  file.description, file.link)
-				} else {
-					console.log("Interupted file : "+file.name+" at "+file.progress*100+" %");
-				}
-			}
-		
-		});
-	}
-	
+
 	this.addFileBlock = function(name, size, description, link) {
 		var block = '';
 		block+='<div>';
@@ -49,6 +30,10 @@ function YackDownloadList(rootElement){
 			
 		});
 	}
+
+    this.addFileByDescription = function(file) {
+        this.addFileBlock(file.name, file.size, file.description, file.link);
+    }
 	
 }
 

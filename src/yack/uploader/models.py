@@ -15,12 +15,21 @@ class YackPack(models.Model):
     
 class YackFile(models.Model):
     name = models.CharField(max_length=200)
-    descripyion = models.CharField(max_length=800)
+        
     size = models.IntegerField()
     sha = models.CharField(max_length=32)
     upload_state = models.CharField(max_length=32)
     parts = models.ManyToManyField("YackFilePart")
     file = models.FileField(upload_to="yack_files")
+
+    # Permissions
+    allowedUsers = models.ManyToManyField("YackUser")
+    allowedGroups = models.ManyToManyField("YackGroup")
+    
+    # Metadatas
+    description = models.CharField(max_length=800)
+    mime = models.CharField(max_length=100)    
+    auto_mime = models.BooleanField(default=True)    
     
     def __unicode__(self):
         return self.name
@@ -178,4 +187,23 @@ class YackFileSubPart(models.Model):
         os.remove(self.file.path)
         super(YackFileSubPart, self).delete()
     
-        
+class YackUser(models.Model):
+    email = models.CharField(max_length=256)
+    name = models.CharField(max_length=32)
+    quota = models.IntegerField()
+
+class YackGroup(models.Model):
+    name = models.CharField(max_length=32)
+    public = models.BooleanField()
+    owner = YackUser
+    childUsers = models.ManyToManyField("YackUser")
+    childGroups = models.ManyToManyField("YackGroup")
+
+
+
+
+
+
+
+
+

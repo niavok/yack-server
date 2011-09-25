@@ -18,32 +18,6 @@
 function YackUploadList(rootElement){
 
     this.rootElement = rootElement;
-	this.taskList = [];
-    /////////
-    this.resetHandlers = function() {
-	    for(var task in taskList) {
-		    document.getElementById('task_'+task.id+'_resume').onclick = function() {
-			task.start();
-			}
-			document.getElementById('task_'+task.id+'_pause').onclick = function() {
-				task.pause();
-			}
-	    }
-    }
-
-
-
-    this.addTask = function(task) {
-        this.taskList[task.id] = task;
-        task.start();
-    }
-
-    this.deleteTask = function(task) {
-        this.uploadList.delete(task);
-        this.taskList[task.id] = null;
-    }
-    //////////////
-
 	
     this.clear = function(){
         this.rootElement.innerHTML = "";
@@ -60,10 +34,8 @@ function YackUploadList(rootElement){
 		div.setAttribute('id','task_'+task.id);
 		div.innerHTML = block;
 		
-		
 		document.getElementById('files_to_upload').appendChild(div);
-		this.taskList[task.id] = task;
-		//this.resetHandlers();
+	
 		document.getElementById('task_'+task.id+'_resume').onclick = function() {
 			task.start();
 		}

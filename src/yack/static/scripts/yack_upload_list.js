@@ -18,6 +18,32 @@
 function YackUploadList(rootElement){
 
     this.rootElement = rootElement;
+	this.taskList = [];
+    /////////
+    this.resetHandlers = function() {
+	    for(var task in taskList) {
+		    document.getElementById('task_'+task.id+'_resume').onclick = function() {
+			task.start();
+			}
+			document.getElementById('task_'+task.id+'_pause').onclick = function() {
+				task.pause();
+			}
+	    }
+    }
+
+
+
+    this.addTask = function(task) {
+        this.taskList[task.id] = task;
+        task.start();
+    }
+
+    this.deleteTask = function(task) {
+        this.uploadList.delete(task);
+        this.taskList[task.id] = null;
+    }
+    //////////////
+
 	
     this.clear = function(){
         this.rootElement.innerHTML = "";
@@ -25,21 +51,26 @@ function YackUploadList(rootElement){
 
 	this.create = function(task) {
 		var block = '';
-		block+='<div id=task_'+task.id+'>';
 		block+='<p>'+task.file.name+' - Size: '+yack_render_size(task.file.size)+'</p>';
 		block+='<p>State: <span id=task_'+task.id+'_state>Analyzing</span> <span id=task_'+task.id+'_progress>0 %</span></p>';
 		block+='<a href="#" id="task_'+task.id+'_pause" >Pause</a>';
 		block+='<a href="#" id="task_'+task.id+'_resume" ></a>';
-		block+="<div>";
 		
-		document.getElementById('files_to_upload').innerHTML += block;
+		var div = document.createElement('div');
+		div.setAttribute('id','task_'+task.id);
+		div.innerHTML = block;
 		
+		
+		document.getElementById('files_to_upload').appendChild(div);
+		this.taskList[task.id] = task;
+		//this.resetHandlers();
 		document.getElementById('task_'+task.id+'_resume').onclick = function() {
 			task.start();
 		}
 		document.getElementById('task_'+task.id+'_pause').onclick = function() {
 			task.pause();
 		}
+		
 	}
 
     this.stateChanged = function(task){

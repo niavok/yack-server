@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  Copyright (c) 2011 Frédéric Bertolus.
 
@@ -15,10 +16,10 @@
  with Yack. If not, see http://www.gnu.org/licenses/.
 """
 
-from uploader.models import YackPack
-from uploader.models import YackFile
-from uploader.models import YackFilePart
-from uploader.models import YackFileSubPart
+from yack.uploader.models import YackPack
+from yack.uploader.models import YackFile
+from yack.uploader.models import YackFilePart
+from yack.uploader.models import YackFileSubPart
 from django.contrib import admin
 
 admin.site.register(YackPack)

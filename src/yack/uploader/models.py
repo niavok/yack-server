@@ -210,10 +210,12 @@ class YackFileSubPart(models.Model):
     
 class YackUser(models.Model):
     email = models.CharField(max_length=256)
+    code = models.CharField(max_length=32)
     name = models.CharField(max_length=32)
     quota = models.IntegerField()
     auth_token = models.CharField(max_length=32)
     auth_token_validity = models.DateTimeField()
+    is_admin = models.BooleanField()
     
     def get_auth_token(self):
         if not self.auth_token:

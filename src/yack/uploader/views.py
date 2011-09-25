@@ -195,8 +195,16 @@ def login(request):
                 user.email = email
                 user.quota = 0
                 user.name = ""
+                user.code = ""
+                user.is_admin = False; 
                 # This save the object
                 user.generate_auth_token()
+                
+                #Create fisrt admin
+                if user.id == 1:
+                    user.is_admin = True;
+                    user.quota = -1;
+                    user.save();
                 
             data = json.dumps([{'status':  True, 'id': user.pk, 'name': user.get_display_name(), 'token': user.get_auth_token()}])
         else:

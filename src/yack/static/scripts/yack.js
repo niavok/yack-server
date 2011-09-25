@@ -39,15 +39,18 @@ function Yack() {
         this.downloadList = new YackDownloadList(document.getElementById('files_to_download'));
         this.uploadList = new YackUploadList(document.getElementById('files_to_upload'));
         this.taskManager = new YackTaskManager(this);
+
+        //Login
+        this.userManager = new YackUserManager(document.getElementById('user_block'));
     }
 
     this.reload = function() {
-        this.downloadList.clear()
-        this.uploadList.clear()
+        this.downloadList.clear();
+        this.uploadList.clear();
 
         //Get current file list
         var url = "/yack/command?format=json&cmd=getFileList";
-		var self = this
+		var self = this;
 	
 		yack_ajaxCall(url, function(response) {
 			
@@ -55,10 +58,10 @@ function Yack() {
 				file = response[i];
 				if(file.progress == 1) {
                     // Uploaded file
-					self.downloadList.addFileByDescription(file)
+					self.downloadList.addFileByDescription(file);
 				} else {
                     // Not uploaded file
-					self.uploadList.addInterruptedFile(file)
+					self.uploadList.addInterruptedFile(file);
 				}
 			}
 		
@@ -130,13 +133,6 @@ function Yack() {
     }
 
 }
-
-
-
-
-
-
-    
 	
 yack = new Yack();
 yack.init();

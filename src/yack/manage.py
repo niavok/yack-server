@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# -*- coding: utf-8 -*-
 from django.core.management import execute_manager
 import imp
 try:

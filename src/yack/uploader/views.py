@@ -31,6 +31,10 @@ import json
 from models import YackFile
 from models import YackFileSubPart
 from models import YackFilePart
+from models import YackUser
+
+import urllib
+
 
 def index(request):
     t = loader.get_template('uploader/index.html')
@@ -154,3 +158,55 @@ def command(request):
         return HttpResponse(data,mimetype)
         
     raise Http404
+
+
+def login(request):
+    
+    method = request.GET.get('method','')
+    
+    if method == 'check':
+        token = request.GET.get('token','');
+        id = request.GET.get('id','');
+        
+        try:
+            user = YackUser.objects.get(auth_token=token, pk=id)
+            data = json.dumps([{'status':  True, 'id': user.pk, 'name': user.get_display_name(), 'token': user.get_auth_token()}])
+        except ObjectDoesNotExist:
+            data = json.dumps([{'status':  False}])
+    
+        return HttpResponse(data,'application/javascript')
+        
+    if method == 'browserid':
+        token = request.GET.get('token','');
+        
+        data = urllib.urlencode({'assertion': token, 'audience': '127.0.0.1:8000'})
+        u = urllib.urlopen('https://browserid.org/verify', data)
+        print u
+        result = json.loads(u.read())
+        
+        print result
+        
+        if result['status'] == "okay":
+            email  = result['email'] 
+            try:
+                user = YackUser.objects.get(email=email)
+            except ObjectDoesNotExist:
+                user = YackUser()
+                user.email = email
+                user.quota = 0
+                user.name = ""
+                # This save the object
+                user.generate_auth_token()
+                
+            data = json.dumps([{'status':  True, 'id': user.pk, 'name': user.get_display_name(), 'token': user.get_auth_token()}])
+        else:
+            data = json.dumps([{'status':  False}])
+    
+        
+        return HttpResponse(data,'application/javascript')
+    
+    raise Http404
+    
+    #assertion: The encoded assertion
+    #audience:
+    

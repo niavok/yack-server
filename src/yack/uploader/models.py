@@ -22,6 +22,11 @@ from django.core.files.base import ContentFile
 import tempfile
 import os
 from django.core.files import File
+from django.utils.datetime_safe import datetime
+from datetime import timedelta
+import base64
+import string
+import random
 
 class YackPack(models.Model):
     name = models.CharField(max_length=200)
@@ -163,8 +168,6 @@ class YackFile(models.Model):
             uploaded += part.size
         
         return float(uploaded)/self.size 
-        
-                    
 
 class YackFilePart(models.Model):
     offset = models.IntegerField()
@@ -209,6 +212,28 @@ class YackUser(models.Model):
     email = models.CharField(max_length=256)
     name = models.CharField(max_length=32)
     quota = models.IntegerField()
+    auth_token = models.CharField(max_length=32)
+    auth_token_validity = models.DateTimeField()
+    
+    def get_auth_token(self):
+        if not self.auth_token:
+            self.generate_auth_token()
+        elif self.auth_token_validity < datetime.now():
+            self.generate_auth_token()
+
+        return self.auth_token
+
+    def generate_auth_token(self):
+        char_set = string.ascii_letters + string.digits
+        self.auth_token = ''.join(random.sample(char_set,32))
+        print self.auth_token
+        self.auth_token_validity = datetime.now() + timedelta(days=15)
+        self.save()
+        
+    def get_display_name(self):
+        if not self.name:
+            return self.email
+        return self.name
 
 class YackGroup(models.Model):
     name = models.CharField(max_length=32)

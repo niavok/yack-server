@@ -38,9 +38,11 @@ function YackUploadList(rootElement){
 	
 		document.getElementById('task_'+task.id+'_resume').onclick = function() {
 			task.start();
+			return false;
 		}
 		document.getElementById('task_'+task.id+'_pause').onclick = function() {
 			task.pause();
+			return false;
 		}
 		
 	}

@@ -103,8 +103,11 @@ function Yack() {
                 slice = file.slice(0,file.size);
             } else if(file.webkitSlice) {
                 slice = file.webkitSlice(0,file.size);
+            } else if(file.mozSlice) {
+            	slice = file.mozSlice(0,file.size);
             } else {
                 // Fail to find slice method
+                alter("Your browser is too all : file.slice method is missing."); 
                 return;
             }
 
@@ -117,12 +120,12 @@ function Yack() {
     }
 
     this.pauseAllAction = function() {
-	    this.uploadList.pauseAll()
+	    self.taskManager.pauseAll()
 	    return false;
     }
 
     this.resumeAllAction = function() {
-        this.uploadList.resumeAll()
+        self.taskManager.resumeAll()
 	    return false;
     }
 

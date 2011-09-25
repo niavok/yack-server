@@ -22,14 +22,22 @@ function YackTaskManager(app){
     this.app = app
 
     this.pauseAll = function() {
-	    for(var task in taskList) {
+    	
+	    for(var taskId in this.taskList) {
+	    	task = this.taskList[taskId];
+			if(!task) {
+				continue;
+			}
 		    task.pause()
 	    }
 	}
 
     this.resumeAll = function() {
-	    for(var task in taskList) {
-            task.setListener(this)
+	    for(var taskId in this.taskList) {
+		    task = this.taskList[taskId];
+			if(!task) {
+				continue;
+			}
 		    task.start();
 	    }
     }

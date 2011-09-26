@@ -64,31 +64,43 @@ def send_file(request):
 @csrf_exempt
 def command(request):
     cmd = request.GET.get('cmd','')
-    format = request.GET.get('format','')
+    auth_token = request.GET.get('auth_token','')
+    auth_id = request.GET.get('auth_id','')
+    mimetype = 'application/javascript'
+    auth_user = None
     
-    if format == 'xml':
-        mimetype = 'application/xml'
-    if format == 'json':
-        mimetype = 'application/javascript'
-  
+    if auth_token and auth_id:
+        # Try to authenticate
+        try:
+            auth_user = YackFile.objects.get(pk=auth_id, auth_token=auth_token)
+        except ObjectDoesNotExist:
+            # Invalid token or user
+            data = json.dumps([{'error': 'invalid auth token or id'}])
+            return HttpResponse(data, mimetype)
+    
     if cmd == 'getCsrfToken':
         c = {}
         c.update(csrf(request))
         return HttpResponse('[{"csrf_token": "%s"}]' % c["csrf_token"] ,mimetype)
     
     if cmd == 'createFile':
+        if not auth_user:
+            data = json.dumps([{'error': 'you must be logged to create a file'}])
+            return HttpResponse(data, mimetype)
+        
         # The client ask to create a new file
         name = request.GET.get('name','')
         sha = request.GET.get('sha','')
         size = int(request.GET.get('size',''))
         
-        print name
-        print sha
-        print size
-        
         try:
             yackFile = YackFile.objects.get(sha=sha)
             yackFile.check_finished()
+            
+            if not yackFile.can_write(auth_user):
+                data = json.dumps([{'error': 'you don\'t have the right to write the file'}])
+                return HttpResponse(data, mimetype)
+            
             print 'The file already exist'
         except ObjectDoesNotExist:
             print 'The file doesn\'t exist'
@@ -96,6 +108,7 @@ def command(request):
             yackFile = YackFile()
             yackFile.upload_state="uploading"
             yackFile.name = name
+            yackFile.owner = auth_user
             yackFile.size = size
             yackFile.sha = sha
             yackFile.save()
@@ -111,7 +124,9 @@ def command(request):
         except ObjectDoesNotExist:
             raise Http404
         
-        
+        if not yackFile.can_read(auth_user):
+            data = json.dumps([{'error': 'you don\'t have the right to read the file'}])
+            return HttpResponse(data, mimetype)
         
         data = json.dumps([{'upload_state': yackFile.upload_state, 'size': yackFile.size, 'sha': yackFile.sha, 'parts': [ {'size' : part.size, 'offset' : part.offset} for part in yackFile.parts.all()] }])
         
@@ -130,6 +145,9 @@ def command(request):
         except ObjectDoesNotExist:
             raise Http404
         
+        if not yackFile.can_write(auth_user):
+            data = json.dumps([{'error': 'you don\'t have the right to write the file'}])
+            return HttpResponse(data, mimetype)
         
         yackFile.add_sub_part(offset, size, sha, data)
         
@@ -141,9 +159,17 @@ def command(request):
     
     if cmd == 'getFileList':
         
+        path = request.GET.get('path','')
+        
+        pack = YackTools.parsePackPath(path)
+        
+        if not pack.can_read(auth_user):
+            data = json.dumps([{'error': 'you don\'t have the right to read the pack'}])
+            return HttpResponse(data, mimetype)
+        
         files = YackFile.objects.all()
         
-        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }  for yackFile in files ])
+        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_read(auth_user) ])
         return HttpResponse(data,mimetype)
     
     if cmd == 'getFileLink':
@@ -153,6 +179,10 @@ def command(request):
             yackFile = YackFile.objects.get(pk=pk)
         except ObjectDoesNotExist:
             raise Http404
+        
+        if not pack.can_read(auth_user):
+            data = json.dumps([{'error': 'you don\'t have the right to read the pack'}])
+            return HttpResponse(data, mimetype)
         
         data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }])
         return HttpResponse(data,mimetype)
@@ -191,20 +221,7 @@ def login(request):
             try:
                 user = YackUser.objects.get(email=email)
             except ObjectDoesNotExist:
-                user = YackUser()
-                user.email = email
-                user.quota = 0
-                user.name = ""
-                user.code = ""
-                user.is_admin = False; 
-                # This save the object
-                user.generate_auth_token()
-                
-                #Create fisrt admin
-                if user.id == 1:
-                    user.is_admin = True;
-                    user.quota = -1;
-                    user.save();
+                user = YackUser.create_user(email)
                 
             data = json.dumps([{'status':  True, 'id': user.pk, 'name': user.get_display_name(), 'token': user.get_auth_token()}])
         else:

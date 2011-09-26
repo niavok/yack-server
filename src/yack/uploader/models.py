@@ -24,7 +24,6 @@ import os
 from django.core.files import File
 from django.utils.datetime_safe import datetime
 from datetime import timedelta
-import base64
 import string
 import random
 
@@ -32,12 +31,21 @@ class YackPack(models.Model):
     name = models.CharField(max_length=200)
     creation_date = models.DateTimeField('date created')
     
+    children_packs = models.ManyToManyField("YackPack")
+    
+    # Permissions
+    owner = models.ForeignKey("YackUser", related_name="pack_owner")
+    allowedUsers = models.ManyToManyField("YackUser")
+    allowedGroups = models.ManyToManyField("YackUserGroup")
+    isPublic = models.BooleanField()
+    
     def __unicode__(self):
         return self.name
     
     
 class YackFile(models.Model):
     name = models.CharField(max_length=200)
+    creation_date = models.DateTimeField('date created')
         
     size = models.IntegerField()
     sha = models.CharField(max_length=32)
@@ -46,8 +54,10 @@ class YackFile(models.Model):
     file = models.FileField(upload_to="yack_files")
 
     # Permissions
+    owner = models.ForeignKey("YackUser", related_name="file_owner")
     allowedUsers = models.ManyToManyField("YackUser")
-    allowedGroups = models.ManyToManyField("YackGroup")
+    allowedGroups = models.ManyToManyField("YackUserGroup")
+    isPublic = models.BooleanField()
     
     # Metadatas
     description = models.CharField(max_length=800)
@@ -210,12 +220,16 @@ class YackFileSubPart(models.Model):
     
 class YackUser(models.Model):
     email = models.CharField(max_length=256)
+    creation_date = models.DateTimeField('date created')
+    
     code = models.CharField(max_length=32)
     name = models.CharField(max_length=32)
     quota = models.IntegerField()
     auth_token = models.CharField(max_length=32)
     auth_token_validity = models.DateTimeField()
     is_admin = models.BooleanField()
+    
+    pack = models.ForeignKey("YackPack")
     
     def get_auth_token(self):
         if not self.auth_token:
@@ -236,13 +250,40 @@ class YackUser(models.Model):
         if not self.name:
             return self.email
         return self.name
+    
+    def create_user(cls, email): #@NoSelf
+        user = YackUser()
+        user.email = email
+        user.quota = 0
+        user.name = ""
+        user.code = ""
+        user.is_admin = False; 
+        
+        #Create root YackPack
+        pack = YackPack()
+        pack.owner = user;
+        pack.is_public = True;
+        pack.save()
+        
+        user.pack = pack;
+        
+        #Create fisrt admin
+        if user.id == 1:
+            user.is_admin = True;
+            user.quota = -1;
+        
+        # This save the object
+        user.generate_auth_token()
+        
+        
+            
 
-class YackGroup(models.Model):
+class YackUserGroup(models.Model):
     name = models.CharField(max_length=32)
     public = models.BooleanField()
-    owner = YackUser
+    owner = models.ForeignKey("YackUser", related_name="user_group_owner")
     childUsers = models.ManyToManyField("YackUser")
-    childGroups = models.ManyToManyField("YackGroup")
+    childGroups = models.ManyToManyField("YackUserGroup")
 
 
 

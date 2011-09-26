@@ -26,7 +26,7 @@ function YackUploadList(rootElement){
 	this.create = function(task) {
 		var block = '';
 		block+='<p>'+task.file.name+' - Size: '+yack_render_size(task.file.size)+'</p>';
-		block+='<p>State: <span id=task_'+task.id+'_state>Analyzing</span> <span id=task_'+task.id+'_progress>0 %</span></p>';
+		block+='<p>State: <span id=task_'+task.id+'_state>Analyzing</span><progress id="task_'+task.id+'_progress_bar" value="0" max="100"></progress><span id=task_'+task.id+'_progress>0 %</span></p>';
 		block+='<a href="#" id="task_'+task.id+'_pause" >Pause</a>';
 		block+='<a href="#" id="task_'+task.id+'_resume" ></a>';
 		
@@ -71,11 +71,14 @@ function YackUploadList(rootElement){
 
     this.progressChanged = function(task){
 		var progressElement = document.getElementById('task_'+task.id+'_progress');
+		var progressBarElement = document.getElementById('task_'+task.id+'_progress_bar');
 		
 		if(task.progress < 0) {
 			progressElement.innerHTML = "";
+			progressBarElement.setAttribute('value',0);
 		} else {
 			progressElement.innerHTML = parseInt(task.progress*100) + ' %';
+			progressBarElement.setAttribute('value', task.progress*100);
 		}
     }
 		

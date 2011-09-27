@@ -34,6 +34,7 @@ from models import YackFilePart
 from models import YackUser
 
 import urllib
+from yack.uploader.tools import YackTools
 
 
 def index(request):
@@ -161,7 +162,7 @@ def command(request):
         
         path = request.GET.get('path','')
         
-        pack = YackTools.parsePackPath(path)
+        pack = YackTools.parse_pack_path(path)
         
         if not pack.can_read(auth_user):
             data = json.dumps([{'error': 'you don\'t have the right to read the pack'}])

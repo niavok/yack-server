@@ -18,9 +18,10 @@
 from yack.uploader.models import YackPack, YackUser
 from django.core.exceptions import ObjectDoesNotExist
 
-class YackTools:
+class YackTools():
     
-    def parse_pack_path(cls, path): #@NoSelf
+    @staticmethod
+    def parse_pack_path(path):
         split_path = path.split("/")
         
         if not len(split_path):

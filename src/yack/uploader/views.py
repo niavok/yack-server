@@ -164,8 +164,12 @@ def command(request):
         
         pack = YackTools.parse_pack_path(path)
         
+        if not pack:
+            data = json.dumps([{'error': 'bad_path', 'error_label': 'no pack found at this path'}])
+            return HttpResponse(data, mimetype)
+        
         if not pack.can_read(auth_user):
-            data = json.dumps([{'error': 'you don\'t have the right to read the pack'}])
+            data = json.dumps([{'error': 'not_authorized', 'error_label': 'you don\'t have the right to read the pack'}])
             return HttpResponse(data, mimetype)
         
         files = YackFile.objects.all()

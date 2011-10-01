@@ -229,7 +229,7 @@ class YackUser(models.Model):
     auth_token_validity = models.DateTimeField()
     is_admin = models.BooleanField()
     
-    pack = models.ForeignKey("YackPack")
+    pack = models.ForeignKey("YackPack", null=True, blank=True)
     
     def get_auth_token(self):
         if not self.auth_token:
@@ -251,22 +251,16 @@ class YackUser(models.Model):
             return self.email
         return self.name
     
-    def create_user(cls, email): #@NoSelf
+    @staticmethod
+    def create_user(email):
         user = YackUser()
         user.email = email
         user.quota = 0
         user.name = ""
         user.code = ""
+        user.creation_date = datetime.now()
         user.is_admin = False; 
-        
-        #Create root YackPack
-        pack = YackPack()
-        pack.owner = user;
-        pack.is_public = True;
-        pack.save()
-        
-        user.pack = pack;
-        
+
         #Create fisrt admin
         if user.id == 1:
             user.is_admin = True;
@@ -276,7 +270,16 @@ class YackUser(models.Model):
         user.generate_auth_token()
         
         
-            
+        #Create root YackPack
+        pack = YackPack()
+        pack.owner = user;
+        pack.creation_date = datetime.now()
+        pack.is_public = True;
+        pack.save()
+        user.pack = pack;
+        user.save()    
+        
+        return user
 
 class YackUserGroup(models.Model):
     name = models.CharField(max_length=32)

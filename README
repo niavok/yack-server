@@ -1,0 +1,49 @@
+Fonctionnalités prévues
+=======================
+
+- Création de compte
+- Upload de fichiers
+    - Upload multiple
+    - Barre de progression
+    - Barre de progression visible par des visiteurs
+    - File d'attend
+    - Pause/ continue
+    - Reprise de l'upload
+- Téléchargement
+    - Panier de téléchargement
+- Organisation
+    - Arborescence de pack
+    - Quota
+    - Gestions des autorisations : user et groupe
+    - Glissé déposé
+    - Métadonnées
+    - Organisation pendant l'upload
+    - Licence
+- Visualisation
+    - Diaporama
+    - Carte
+    - Miniature
+    - Selection enregistrable
+    - Visionnage d'un pack et des sous pack applatis
+- UI
+    - Notification
+    - Browser Id
+    - REST
+
+
+Structure de l'UI
+=================
+
+- Une barre latérale fixe
+    - Le logos du site
+    - L'état de connection
+    - Liste d'onglets:
+        - Upload de fichier
+        - Panier de téléchargement
+        - Diaporamas
+        - Réglages
+        - Contacts
+        - Mes fichiers
+        - Plus d'onglets ...
+        - Fichiers de xxx
+

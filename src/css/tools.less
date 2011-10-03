@@ -1,0 +1,185 @@
+.rounded_corners (@radius: 5px) {
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -o-border-radius: @radius;
+  -ms-border-radius: @radius;
+  -khtml-border-radius: @radius;
+  border-radius: @radius;
+}
+
+
+.rounded_corners_bottom_right (@radius: 5px) {
+  -moz-border-radius-bottomright: @radius;
+  -webkit-border-radius-bottomright: @radius;
+  -o-border-radius-bottomright: @radius;
+  -ms-border-radius-bottomright: @radius;
+  -khtml-border-radius-bottomright: @radius;
+  border-radius-bottomright: @radius;
+}
+
+.rounded_corners_top_right (@radius: 5px) {
+  -moz-border-radius-topright: @radius;
+  -webkit-border-radius-topright: @radius;
+  -o-border-radius-topright: @radius;
+  -ms-border-radius-topright: @radius;
+  -khtml-border-radius-topright: @radius;
+  border-radius-topright: @radius;
+}
+
+.rounded_corners_top_left (@radius: 5px) {
+  -moz-border-radius-topleft: @radius;
+  -webkit-border-radius-topleft: @radius;
+  -o-border-radius-topleft: @radius;
+  -ms-border-radius-topleft: @radius;
+  -khtml-border-radius-topleft: @radius;
+  border-radius-topleft: @radius;
+}
+
+.rounded_corners_bottom_left (@radius: 5px) {
+  -moz-border-radius-bottomleft: @radius;
+  -webkit-border-radius-bottomleft: @radius;
+  -o-border-radius-bottomleft: @radius;
+  -ms-border-radius-bottomleft: @radius;
+  -khtml-border-radius-bottomleft: @radius;
+  border-radius-bottomleft: @radius;
+}
+
+.shadow(@radius: @default_shadow_thickness, @color: rgb(100,100,100)) {
+    -moz-box-shadow:0px 0 @radius @color;
+    -webkit-box-shadow:0 0 @radius @color;
+}
+
+.no-shadow {
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.no_insets {
+    padding:0;
+    margin:0;
+}
+
+
+.radial-gradient(@color1: black, @color2: white) {
+    background: -moz-radial-gradient( @color1, @color2);    
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(@color1), to(@color2), color-stop(.5,@color1));
+}
+
+.horizontal-gradient(@color1: black, @color2: white) {
+    background: -moz-linear-gradient(90deg, @color1, @color2);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(@color2), to(@color1));
+}
+
+.vertical-gradient(@color1: black, @color2: white) {
+    background: -moz-linear-gradient(00deg, @color1 , @color2 );
+    background: -webkit-gradient(linear, 0% 0%, 100% 0%, from(@color1), to(@color2));
+}
+    
+.box {
+    .rounded_corners(4px);
+    border: 1px solid @border_color;    
+    background-color: @light_background_color;
+}
+
+.padding {
+   padding: 10px;
+}
+
+.padding_box {
+
+    .box;
+    padding: 10px;
+
+}
+
+.float_left {
+    float: left;
+}
+
+.float_right {
+    float: right;
+}
+
+.column(@count:2) {
+    -moz-column-count: @count;
+    -moz-column-gap: 1em;
+    -moz-column-rule: 1px solid @border_color;
+ 
+    -webkit-column-count: @count;
+    -webkit-column-gap: 1em;
+    -webkit-column-rule: 1px solid @border_color;
+    
+    column-count: @count;
+    column-gap: 1em;
+    column-rule: 1px solid @border_color;
+}
+
+.display-box {
+    display : -moz-box;
+	display : -webkit-box;
+	display : box;
+}
+
+.box-orient(@orient:horizontal) {
+    -moz-box-orient : @orient;
+	-webkit-box-orient : @orient;
+	box-orient : @orient;
+}
+
+.box-pack(@pack:center) {
+	-moz-box-pack : @pack;
+	-webkit-box-pack : @pack;
+	box-pack : @pack;
+}
+.box-align(@align:center) {
+	-moz-box-align : @align;
+	-webkit-box-align : @align;
+	box-align : @align;
+}
+
+
+.box-flex(@flex:1) {
+	-moz-box-flex : @flex;
+	-webkit-box-flex : @flex;
+	box-flex : @flex;
+}
+
+.transform(@angle,@scale:1) {
+    -moz-transform:rotate(@angle) scale(@scale);
+}
+
+.transition {
+    -moz-transition: all 1s ease-in-out;
+}
+
+.triangle-border(@round_size, @border_color, @back_color, @text_color){
+    position:relative;
+    padding:15px;
+    //margin:1em 0 3em;
+    border:1px solid @border_color;
+    color:@text_color;
+    background:@back_color;
+    -webkit-border-radius:@round_size;
+    -moz-border-radius:@round_size;
+    border-radius:@round_size;
+    margin-left:30px; 
+}
+
+/* creates the smaller  triangle */
+.triangle-border-after(@round_size, @border_color, @back_color, @text_color) {
+    content:"";
+    position:absolute;
+    bottom:-13px; /* value = - border-top-width - border-bottom-width */
+    left:47px; /* value = (:before left) + (:before border-left) - (:after border-left) */
+    border-width:13px 13px 0;
+    border-style:solid;
+    border-color:@border_color transparent;
+    display:block; 
+    width:0;
+    top:16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+    bottom:auto;
+    left:-21px; /* value = - border-left-width - border-right-width */
+    border-width:9px 21px 9px 0;
+    border-color:transparent @back_color;
+}
+    

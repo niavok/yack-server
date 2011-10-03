@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
  Copyright (c) 2011 Frédéric Bertolus.
 
@@ -14,8 +15,12 @@
  You should have received a copy of the GNU Affero General Public License along
  with Yack. If not, see http://www.gnu.org/licenses/.
 -->
-<html>
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
     <head>
+    	<meta charset="UTF-8"/>
+    	<link rel="icon" type="image/png" href="/favicon.png"/>
+    	<link rel="stylesheet" type="text/css" media="handheld, all" href="{{ STATIC_URL }}yack.css"/>
+    	<title>Yack - Quarry your files</title>
         <script src="https://browserid.org/include.js" type="text/javascript"></script>
         <script src="{{ STATIC_URL }}scripts/sha1.js" type="text/javascript"></script>
         <script src="{{ STATIC_URL }}scripts/yack_tools.js" type="text/javascript"></script>
@@ -26,33 +31,21 @@
         <script src="{{ STATIC_URL }}scripts/yack_user_manager.js" type="text/javascript"></script>
     </head>
     <body>
-        <h1>Bienvenue dans Yack</h1>
-        
-        <div id="user_block" >
+        <div id="menu_panel" >
+        	<div id="logo_block" ></div>
+        	<div id="user_block" ></div>
+        	<div id="tabs_block" ></div>
+        	<div id="footer_block" ><p>This website use Yack. Yack is a free software distributed under the GNU Affero General Public Licence v3. The source code is available here : <a href="https://gitorious.org/yack/yack" >Yack's gitorious repository</a>. If you need a copy on another licence, please contact <a href="mailto:fred@elveos.org">fred@elveos.org</a></p></div>
 		</div>
-        
-        <p>Yack est un gestionnaire d'upload de fichier.</p>
-
-        <form>
-            <label for=main_file >Fichier à uploader : </label><input id=main_file type=file name=main_file multiple />
-        </form>
-        <a href="#" id="pause_all" >Pause all</a>
-        <a href="#" id="resume_all" >Resume all</a>
-        
-        <h2>Upload list</h2>
-        <div id=files_to_upload>
-        	
-        </div>
-        <h2>Download list</h2>
-        <div id=files_to_download>
-        	
-        </div>
+		<div id="content_panel" >
+			<div id="loading_layout" >Loading</div>
+		</div>
         
         <div id=work_list>
         </div>
         <script src="{{ STATIC_URL }}scripts/yack.js" type="text/javascript"></script>
         <div id="footer">
-            <p>This website use Yack. Yack is a free software distributed under the GNU Affero General Public Licence v3. If you need a copy on another licence, please contact <a href="mailto:fred@elveos.org">fred@elveos.org</a></p>
+            
         </div>
     </body>
     

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+less.js/bin/lessc -x  css/yack.less > yack/static/yack.css

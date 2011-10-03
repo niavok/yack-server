@@ -281,9 +281,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="446.36527"
-     inkscape:cy="830.48251"
+     inkscape:zoom="2"
+     inkscape:cx="422.20592"
+     inkscape:cy="742.38328"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -747,21 +747,21 @@
        xml:space="preserve"
        style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Sans"
        x="321.32916"
-       y="214.53403"
+       y="210.53403"
        id="text4634"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4636"
          x="321.32916"
-         y="214.53403">23 minutes at 25 ko/s</tspan></text>
+         y="210.53403">23 minutes at 25 ko/s</tspan></text>
     <text
        sodipodi:linespacing="125%"
        id="text4638"
-       y="214.53403"
+       y="210.53403"
        x="236.72388"
        style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Sans"
        xml:space="preserve"><tspan
-         y="214.53403"
+         y="210.53403"
          x="236.72388"
          id="tspan4640"
          sodipodi:role="line">Uploading</tspan></text>
@@ -851,7 +851,7 @@
          y="385.96835"
          x="321.32916"
          id="tspan4706"
-         sodipodi:role="line">-- minutes at -- ko/s</tspan></text>
+         sodipodi:role="line">2 secondes at 45 mo/s</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Sans"
@@ -862,7 +862,7 @@
          sodipodi:role="line"
          id="tspan4710"
          x="236.72388"
-         y="385.96835">Analysing ...</tspan></text>
+         y="385.96835">Analysing</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:10px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#692de0;fill-opacity:1;stroke:none;font-family:Sans"
@@ -900,17 +900,6 @@
        x="235.91483"
        y="443.67172" />
     <text
-       xml:space="preserve"
-       style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Sans"
-       x="321.32916"
-       y="467.96835"
-       id="text4748"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan4750"
-         x="321.32916"
-         y="467.96835">12 minutes at 15 ko/s</tspan></text>
-    <text
        sodipodi:linespacing="125%"
        id="text4752"
        y="467.96835"
@@ -920,7 +909,7 @@
          y="467.96835"
          x="236.72388"
          id="tspan4754"
-         sodipodi:role="line">Uploading</tspan></text>
+         sodipodi:role="line">Waiting</tspan></text>
     <path
        style="fill:#e6e6e6;fill-opacity:1;stroke:#969696;stroke-width:0.30773929;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 219.84559,389.25093 c -0.96614,0.54376 -1.63371,-0.65231 -2.70977,0.0572 -1.35237,0.89167 2.18518,1.60378 2.62141,2.04002 0.79796,0.79797 0.29933,1.36019 1.35079,1.96991 0.40191,0.23304 3.24082,0.0563 3.63027,-0.56284 0.21845,-0.34728 -0.61774,-1.86713 -0.25669,-2.53249 1.20918,-2.22834 0.0235,-4.86347 -0.26982,-4.85098 -0.78109,0.0333 0.37399,3.393 -0.26145,3.33109 -0.59466,-0.058 -0.34041,-4.42569 -1.35041,-4.29018 -1.01592,0.1363 0.53532,3.99082 0.0311,4.01559 -0.88607,0.0436 -0.57385,-4.14293 -1.58713,-3.98428 -1.18718,0.18589 0.66103,3.89095 0.0641,3.97745 -0.35662,0.0517 -0.87417,-3.71583 -2.08027,-3.07257 -0.7709,0.41115 1.53245,3.49989 0.81783,3.9021 z"
@@ -1024,17 +1013,6 @@
        id="rect4813"
        style="fill:#928eae;fill-opacity:1;stroke:none" />
     <text
-       sodipodi:linespacing="125%"
-       id="text4827"
-       y="301.17059"
-       x="321.32916"
-       style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Sans"
-       xml:space="preserve"><tspan
-         y="301.17059"
-         x="321.32916"
-         id="tspan4829"
-         sodipodi:role="line">-- minutes at -- ko/s</tspan></text>
-    <text
        xml:space="preserve"
        style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#333333;fill-opacity:1;stroke:none;font-family:Sans"
        x="236.72388"
@@ -1106,7 +1084,7 @@
        id="rect3961"
        style="fill:none;stroke:#b1b1b1;stroke-width:0.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <rect
-       style="fill:none;stroke:#7da2b4;stroke-width:0.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#b1b1b1;stroke-width:0.50000000000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect3963"
        width="300.29117"
        height="70.611099"

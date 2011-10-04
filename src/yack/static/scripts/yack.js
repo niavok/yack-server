@@ -17,6 +17,39 @@
 
 // Yack main script
 
+
+function Yack() {
+    
+    this.init = function() {
+        this.console = document.getElementById('yack_console');
+        yack.print("Initialising Yack");
+
+        this.core = new YackCore();
+        this.ui = new YackUI();
+
+        this.core.init();
+        this.ui.init();
+        yack.print("Yack Initialised");
+    }
+
+    this.run = function() {
+        yack.print("Starting yack");
+        this.core.run();
+        this.ui.run();
+        yack.print("Yack Started");
+    }
+
+    this.print = function(text) {
+        this.console.appendChild(document.createElement('br'));
+        this.console.appendChild(document.createTextNode(text));
+    }
+
+}
+yack = new Yack();
+yack.init();
+yack.run();
+
+/*
 var yack_input;
 var yack_workList;
 var yack_worker;
@@ -133,8 +166,7 @@ function Yack() {
     }
 
 }
-	
-yack = new Yack();
-yack.init();
-yack.reload();
+*/
+
+//yack.reload();
 

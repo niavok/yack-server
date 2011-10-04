@@ -27,4 +27,4 @@ a:hover{color:#9b5fff;}
 #menu_panel{width:300px;background:#e9e9e9;height:100%;position:absolute;top:0px;}#menu_panel #logo_block{margin-top:10px;height:100px;background:url("/static/yack_logo.png");background-repeat:no-repeat;}
 #menu_panel #footer_block{position:absolute;bottom:0px;font-size:10px;color:#4f5059;margin:5px;}
 #content_panel{margin-left:300px;}
-#loading_layout{margin:20px;font-size:18px;}
+#yack_console{margin:20px;font-size:12px;}

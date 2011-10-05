@@ -18,9 +18,15 @@
 function YackUI() {
 
     this.init = function() {
+        this.userBlockDomElement = document.getElementById("user_block");
+        this.tabsBlockDomElement = document.getElementById("tabs_block");
+        this.contentBlockDomElement = document.getElementById("content_panel");
+        this.consoleBlockDomElement = document.getElementById("tabs_yack_console");
+        
     }
     
     this.run = function() {
+        this.yackAuthComponent = new YackAuthComponent(this.userBlockDomElement);
     }
 
 }
@@ -29,6 +35,10 @@ function YackUI() {
 function YackAuthComponent(rootComponent) {
 
     this.rootComponent = rootComponent;
+
+    this.init = function() {
+        this.rootComponent.innerHTML = "plop";
+    }
 
     this.onLogin = function() {
         return false;    
@@ -39,5 +49,5 @@ function YackAuthComponent(rootComponent) {
         return false;    
     }
 
-
+    this.init();
 }

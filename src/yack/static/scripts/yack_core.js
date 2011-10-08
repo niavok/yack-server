@@ -18,9 +18,41 @@
 function YackCore() {
     
     this.init = function() {
+        this.server = new YackServer()
+        this.loginEvent = new YackEventManager();
+        this.userLogged = false;
     }
 
     this.run = function() {
+        this.checkLogin();
     }
+    
+    this.checkLogin = function() {
+        //Check is already logged
+    	var userId = localStorage.getItem("userId");
+    	var userToken = localStorage.getItem("userToken");
+    	
+    	if(userId && userToken) {
+            this.server.sendCheckLogin(userId, userToken)
+        }
+	}
+    
+    this.loginByBrowserId = function(assertion) {
+        this.server.sendLoginByBrowserId(assertion)
+    }
+    
+    this.setLogged = function(id ,token, name) {
+		this.userToken = token
+		this.userLogged = true;
+		this.userName = name; 
+		this.userId = id;
+		localStorage.setItem("userId", id);
+		localStorage.setItem("userToken", token);
+		this.loginEvent.fire();
+	}
+	
+	this.isLogged = function() {
+	    return this.userLogged;
+	}
 
 }

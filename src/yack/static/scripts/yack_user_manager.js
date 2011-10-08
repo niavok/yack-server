@@ -32,19 +32,8 @@ function YackUserManager(rootElement){
     	 
     }
     
-    this.generateLoginButton = function() {
-    	var self = this;
-    	this.rootElement.innerHTML = '<img id="browserid_button" alt="Sign in" src="https://browserid.org/i/sign_in_green.png" style="opacity: 1; cursor: pointer;">';
-    	document.getElementById('browserid_button').onclick = function() {
-    		self.login();
-		}
-    	
-    	    	
-    }
+   
     
-    this.generateUserBar = function() {
-    this.rootElement.innerHTML = '<p>Logged as <em>'+this.userName+'</em></p>';
-    }
     
     this.checkLogin = function(userId, userToken) {
     	var self = this;
@@ -62,12 +51,7 @@ function YackUserManager(rootElement){
     	var self = this;
 		navigator.id.getVerifiedEmail(function(assertion) {
 			    if (assertion) {
-			    	yack_ajaxCall('/yack/login?method=browserid&token='+assertion, function(response) {
-			    		console.log(response)
-						if(response[0].status) {
-							self.setLogged(response[0].id, response[0].token, response[0].name)
-						} 							
-					});			    	
+			    	
 			    } else {
 			        // something went wrong!  the user isn't logged in.
 			    }

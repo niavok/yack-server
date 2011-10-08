@@ -37,7 +37,9 @@ function YackAuthComponent(rootComponent) {
     this.rootComponent = rootComponent;
 
     this.init = function() {
-        this.rootComponent.innerHTML = "plop";
+        this.generate()
+        var self =  this;
+        yack.core.loginEvent.register(function () { self.generate()})
     }
 
     this.onLogin = function() {
@@ -48,6 +50,38 @@ function YackAuthComponent(rootComponent) {
     this.onLogout = function() {
         return false;    
     }
+    
+    this.generateDisconnectedState = function() {
+        this.rootComponent.innerHTML = '<img id="browserid_button" alt="Sign in" src="https://browserid.org/i/sign_in_green.png" style="opacity: 1; cursor: pointer;">';
+        var self = this;
+    	document.getElementById('browserid_button').onclick = function() {
+    		self.onUiLogin();
+		}
+    }
+    
+    this.generateConnectedState = function() {
+    this.rootComponent.innerHTML = '<p>Logged as <em>'+this.userName+'</em></p>';
+    }
+    
+    this.onUiLogin = function() {
+    	var self = this;
+		navigator.id.getVerifiedEmail(function(assertion) {
+			    if (assertion) {
+		            yack.core.loginByBrowserId(assertion);
+			    } else {
+			        // something went wrong!  the user isn't logged in.
+			    }
+			});
+	}
+	
+	this.generate = function() {
+	    if(yack.core.isLogged()) {
+	        this.generateConnectedState()
+	    } else {
+	        this.generateDisconnectedState()
+	    }
+	}
+    
 
     this.init();
 }

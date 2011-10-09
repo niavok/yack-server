@@ -30,6 +30,28 @@ h2 {
     font-weight: bold;
 }
 
+.inactive_button {
+    cursor: auto;
+    display: inline-block;
+    background: rgb(185,183,203);
+    .horizontal-gradient(rgb(146,142,174), rgb(185,183,203));
+    font-size: 18px;
+    color: rgb(79,79,79);
+    margin: 5px;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    .rounded_corners(10px);
+    
+}
+
+.inactive_button:hover {
+    color: rgb(79,79,79);
+}
+
 #menu_panel {
     width: 300px;
     background: @dark_background_color;
@@ -180,6 +202,45 @@ h2 {
                 border-left: 1px solid @border_color;
             }
             
+        }
+    }
+    
+    .tasks_block {
+        width: 100%;
+        .display-box;
+        .box-align(end);
+        
+        
+        .tasks_list {
+            .box-flex(1);
+        }
+        
+        .tasks_controls {
+            width: 300px;
+            margin-right: 30px;
+            
+            .control_buttons_block {
+                text-align: center;
+                margin-top: 40px;
+                margin-bottom: 40px;
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+            
+            .interrupted_files_block {
+                .rounded_corners(15px);
+                background: @dark_background_color;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 10px;
+                padding-right: 10px;
+                
+                margin-top: 20px;
+                margin-bottom: 20px;
+                margin-left: 0px;
+                margin-right: 0px;
+            }
+        
         }
     }
 }

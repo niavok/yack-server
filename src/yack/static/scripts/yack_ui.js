@@ -260,14 +260,92 @@ function YackUploadTab() {
                 dragDropBlock.appendChild(dragDropLabel);
             uploadBlockSubBox.appendChild(fileChooserBlock);
             uploadBlockSubBox.appendChild(dragDropBlock);
+            
                     
         uploadBlock.appendChild(uploadBlockTitle);
         uploadBlock.appendChild(uploadBlockSubBox);
 
+        // Tasks block
+        var tasksBlock = document.createElement('div');
+        tasksBlock.setAttribute("class", "tasks_block");
+
+            // Task list
+            var tasksList = document.createElement('div');
+            tasksList.setAttribute("class", "tasks_list");
+
+            // Task controls
+            var tasksControls = document.createElement('div');
+            tasksControls.setAttribute("class", "tasks_controls");
+
+                // Control buttons block
+                var controlButtonsBlock = document.createElement('div');
+                controlButtonsBlock.setAttribute("class", "control_buttons_block");
+
+                    // pause all button
+                    var pauseAllButton = document.createElement('a');
+                    pauseAllButton.setAttribute("class", "inactive_button");
+                    pauseAllButton.appendChild(document.createTextNode("pause all"));
+                                        
+                    // resume all button
+                    var resumeAllButton = document.createElement('a');
+                    resumeAllButton.setAttribute("class", "inactive_button");
+                    resumeAllButton.appendChild(document.createTextNode("resume all"));
+
+                controlButtonsBlock.appendChild(pauseAllButton);
+                controlButtonsBlock.appendChild(resumeAllButton);   
+
+                // Max upload chooser
+                var maxUploadBlock = document.createElement('div');
+                maxUploadBlock.setAttribute("class", "control_buttons_block");
+                    // Label
+                    var maxUploadLabel = document.createElement('label');
+                    maxUploadLabel.setAttribute("for", "max_upload_chooser");
+                    maxUploadLabel.appendChild(document.createTextNode("Max concurrent upload: "));
+                    
+                    // Input
+                    var maxUploadInput = document.createElement('input');
+                    maxUploadInput.setAttribute("type", "number");
+                    maxUploadInput.setAttribute("name", "max_upload_chooser");
+                    maxUploadInput.setAttribute("min", "1");
+                    maxUploadInput.setAttribute("max", "100");
+                    maxUploadInput.setAttribute("step", "1");
+                    maxUploadInput.setAttribute("value", "5");
+
+                maxUploadBlock.appendChild(maxUploadLabel);
+                maxUploadBlock.appendChild(maxUploadInput);                                
+
+                    
+                // Interrupted files block
+                var interruptedFilesBlock = document.createElement('div');
+                interruptedFilesBlock.setAttribute("class", "interrupted_files_block");
+                     // Interrupted files title
+                     var interruptedFilesTitle = document.createElement('h2');
+                     interruptedFilesTitle.appendChild(document.createTextNode("Interrupted files"));
+                    
+                     // Interrupted files list
+                     var interruptedFilesList = document.createElement('div');
+                    interruptedFilesList.setAttribute("class", "interrupted_files_list");
+                
+                     // Interrupted files label
+                     var interruptedFilesLabel = document.createElement('p');
+                     interruptedFilesLabel.appendChild(document.createTextNode("You must upload these files again to finish the transfer."));
+
+                interruptedFilesBlock.appendChild(interruptedFilesTitle);                
+                interruptedFilesBlock.appendChild(interruptedFilesList);
+                interruptedFilesBlock.appendChild(interruptedFilesLabel);                                
+                
+            tasksControls.appendChild(controlButtonsBlock);
+            tasksControls.appendChild(maxUploadBlock);
+            tasksControls.appendChild(interruptedFilesBlock);
+    
+        tasksBlock.appendChild(tasksList);
+        tasksBlock.appendChild(tasksControls);
+           
         
         content.appendChild(quotaBar);
         content.appendChild(title);
         content.appendChild(uploadBlock);
+        content.appendChild(tasksBlock);
 
         
         return content;

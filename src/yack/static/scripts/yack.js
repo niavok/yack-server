@@ -22,14 +22,12 @@ function Yack() {
     
     this.init = function() {
         this.console = document.getElementById('yack_console');
-        yack.print("Initialising Yack");
+        this.print("Initialising Yack");
 
         this.core = new YackCore();
         this.ui = new YackUI();
 
-        this.core.init();
-        this.ui.init();
-        yack.print("Yack Initialised");
+        this.print("Yack Initialised");
     }
 
     this.run = function() {
@@ -43,10 +41,10 @@ function Yack() {
         this.console.appendChild(document.createElement('br'));
         this.console.appendChild(document.createTextNode(text));
     }
-
+    
+    this.init();
 }
 yack = new Yack();
-yack.init();
 yack.run();
 
 /*

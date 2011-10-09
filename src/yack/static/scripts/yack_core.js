@@ -54,5 +54,6 @@ function YackCore() {
 	this.isLogged = function() {
 	    return this.userLogged;
 	}
-
+	
+	this.init();
 }

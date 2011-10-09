@@ -27,10 +27,99 @@ function YackUI() {
     
     this.run = function() {
         this.yackAuthComponent = new YackAuthComponent(this.userBlockDomElement);
+        this.yackTabManager = new YackTabManager(this.tabsBlockDomElement, this.contentBlockDomElement);
+        
+        
+        this.yackTabManager.addTab(new YackUploadTab());
+        this.yackTabManager.addTab(new YackFilesTab());
     }
+    
+    this.init();
 
 }
 
+
+function YackTabManager(tabRootComponent, contentRootComponent) {
+
+    this.tabRootComponent = tabRootComponent;
+    this.contentRootComponent = contentRootComponent;
+    
+    
+    this.init = function() {
+        this.tabList = [];
+        this.headerMap = {};
+        this.contentMap = {};
+        this.selectedTab = null
+    }
+    
+    this.addTab = function(tab) {
+        this.tabList.push(tab);
+        
+        var tabHeaderBlock =  document.createElement('div');
+        tabHeaderBlock.setAttribute("class", "yack_unselected_tab_header");
+        var tabHeaderTitleBlock =  document.createElement('div');
+        tabHeaderTitleBlock.setAttribute("class", "yabk_tab_header_title");
+        var tabHeaderContentBlock =  document.createElement('div');
+        tabHeaderContentBlock.setAttribute("class", "yabk_tab_header_content");
+        
+        tabHeaderTitleBlock.appendChild(tab.getHeaderTitleComponent())
+        tabHeaderContentBlock.appendChild(tab.getHeaderContentComponent())
+
+        tabHeaderBlock.appendChild(tabHeaderTitleBlock)        
+        tabHeaderBlock.appendChild(tabHeaderContentBlock)        
+        
+        this.tabRootComponent.appendChild(tabHeaderBlock)
+        
+        this.headerMap[tab.title] = tabHeaderBlock;
+        this.contentMap[tab.title] = tab.getContentComponent();
+        
+        //Set click handler
+        this.setClickHandler(tab)
+        
+        
+        if(this.selectedTab == null) {
+            this.select(tab)
+        }
+    
+    }
+    
+    this.setClickHandler = function(tab) {
+        var that = this;
+        var  tabHeaderBlock = this.headerMap[tab.title]
+        tabHeaderBlock.onclick = function() {
+            that.select(tab)
+        }
+    }
+
+    
+    this.select = function(tab) {
+         alert("select")
+         // Deselect previous element
+         var previouslySelectedTab = this.selectedTab;
+         if(previouslySelectedTab != null) {
+             previouslySelectedTab.selected = false
+             this.headerMap[previouslySelectedTab.title].setAttribute("class", "yack_unselected_tab_header");  
+             this.setClickHandler(previouslySelectedTab)       
+         }
+         
+         // Clean content panel
+         while (this.contentRootComponent.hasChildNodes()) {
+            this.contentRootComponent.removeChild(this.contentRootComponent.lastChild);
+         }
+
+         this.contentRootComponent.appendChild(this.contentMap[tab.title])
+         var tabHeaderBlock =  this.headerMap[tab.title]
+         tabHeaderBlock.setAttribute("class", "yack_selected_tab_header");
+         tabHeaderBlock.onclick = null
+
+
+         this.selectedTab = tab;
+         tab.selected = true;
+    
+    }
+
+    this.init();
+}
 
 function YackAuthComponent(rootComponent) {
 
@@ -85,3 +174,64 @@ function YackAuthComponent(rootComponent) {
 
     this.init();
 }
+
+function YackUploadTab() {
+
+    this.init = function() {
+        this.title = "upload"
+        this.headerTitleComponent =  document.createElement('p');
+        this.headerTitleComponent.innerHTML = "Upload";
+
+
+        this.headerContentComponent =  document.createElement('div');
+        
+        this.contentComponent =  document.createElement('div');
+        this.contentComponent.innerHTML = "Plop !"
+    }
+    
+    this.getContentComponent = function() {
+        return this.contentComponent;    
+    }
+    
+    this.getHeaderTitleComponent = function() {
+        return this.headerTitleComponent;
+    }
+    
+    this.getHeaderContentComponent = function() {
+        return this.headerContentComponent;
+    }
+    
+    this.init();
+}
+
+function YackFilesTab() {
+
+    this.init = function() {
+        this.title = "files"
+        this.headerTitleComponent =  document.createElement('p');
+        this.headerTitleComponent.innerHTML = "Files";
+
+
+        this.headerContentComponent =  document.createElement('div');
+        
+        this.contentComponent =  document.createElement('div');
+        this.contentComponent.innerHTML = "Files tab !"
+    }
+    
+    this.getContentComponent = function() {
+        return this.contentComponent;    
+    }
+    
+    this.getHeaderTitleComponent = function() {
+        return this.headerTitleComponent;
+    }
+    
+    this.getHeaderContentComponent = function() {
+        return this.headerContentComponent;
+    }
+    
+    this.init();
+}
+
+
+

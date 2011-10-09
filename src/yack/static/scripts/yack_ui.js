@@ -234,14 +234,16 @@ function YackUploadTab() {
                 fileChooserBlock.setAttribute("class", "file_chooser_block");
 
                     // File Chooser
-                    var fileChooser = document.createElement('input');
-                    fileChooser.setAttribute("type", "file");
-                    fileChooser.setAttribute("multiple", "multiple");
+                    this.fileChooser = document.createElement('input');
+                    this.fileChooser.setAttribute("type", "file");
+                    this.fileChooser.setAttribute("multiple", "multiple");
+                    var that = this;
+                    this.fileChooser.onchange = function() { that.onUiFileInputChangeAction() };
                     
                     // Label
                     var fileChooserLabel = document.createElement('p');
                     fileChooserLabel.appendChild(document.createTextNode("You can select multiple files ..."));
-                fileChooserBlock.appendChild(fileChooser);
+                fileChooserBlock.appendChild(this.fileChooser);
                 fileChooserBlock.appendChild(fileChooserLabel);
                     
                 // DragDrop Block
@@ -350,6 +352,37 @@ function YackUploadTab() {
         
         return content;
     }
+    
+    // Action
+    this.onUiFileInputChangeAction = function() {
+        
+        var files = this.fileChooser.files;
+        var filesStruct = [];
+        
+        for (var i = 0, file; file = files[i]; i++) {
+            if(file.slice) {
+                slice = file.slice(0,file.size);
+            } else if(file.webkitSlice) {
+                slice = file.webkitSlice(0,file.size);
+            } else if(file.mozSlice) {
+            	slice = file.mozSlice(0,file.size);
+            } else {
+                // Fail to find slice method
+                alert("Your browser is too all : file.slice method is missing."); 
+                return;
+            }
+
+ 
+           filesStruct[i] = {'name' : file.name , 'size' : file.size, 'blob' : slice}
+        }
+        
+        yack.core.addFilesToUpload(filesStruct);
+        
+        this.fileChooser.value = ""
+        
+        return true;
+    }
+    
     
     this.init();
 }

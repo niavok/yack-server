@@ -15,11 +15,15 @@
 // with Yack. If not, see http://www.gnu.org/licenses/.
 //
 
-function YackTaskManager(app){
+function YackUploadTaskManager(app){
 
     this.taskList = [];
     this.uploadList = app.uploadList;
     this.app = app
+    this.taskCreatedEvent = new YackEventManager();
+    this.taskStateChangedEvent = new YackEventManager();
+    this.taskProgressChangedEvent = new YackEventManager();
+    this.taskFileIdChangedEvent = new YackEventManager();
 
     this.pauseAll = function() {
     	
@@ -55,23 +59,20 @@ function YackTaskManager(app){
     //Callback
 
     this.taskCreated = function(task) {
-        this.uploadList.create(task);
+        this.taskCreatedEvent.fire(task)
     }
 
     this.taskStateChanged = function(task) {
-        this.uploadList.stateChanged(task);
-        
-        if(task.state == "uploaded") {
-            this.app.fileUploaded(task)
-        }    
+        this.taskStateChangedEvent.fire(task)
     }
     
     this.taskProgressChanged = function(task) {
-        this.uploadList.progressChanged(task);
+        this.taskProgressChangedEvent.fire(task)
     }
 
     this.taskFileIdChanged = function(task) {
-        this.uploadList.deleteInterrupted(task.distantId);
+        // To delete interrupted
+        this.taskFileIdChangedEvent.fire(task)
     }
 }
 

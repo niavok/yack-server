@@ -26,7 +26,7 @@ self.addEventListener('message', function(e) {
     var data = e.data;
     switch (data.cmd) {
         case 'init':
-            init();
+            init(data.authToken);
             break;
         case 'add_file':
             addFile(data.file);
@@ -37,9 +37,9 @@ self.addEventListener('message', function(e) {
 
 var server;
 
-function init() {
+function init(authToken) {
     log('yack_worker_send_file: init');
-    server = new Server();
+    server = new Server(authToken);
 }
 
 function addFile(file) {
@@ -71,13 +71,13 @@ function addFile(file) {
     
 }
 
-function Server() {
+function Server(authToken) {
 
-	
+    this.authToken = authToken;	
 
     this.createDistantFile = function(name, size, sha) {
-          response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
-         
+          response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha, 'auth_token': authToken});
+          log('yack_worker_send_file: '+response)
           
           return new DistantFile(response[0].pk);
           

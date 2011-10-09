@@ -24,9 +24,9 @@ function YackEventManager(){
         this.listeners.push(listener)
     }
     
-    this.fire = function() {
+    this.fire = function(param) {
         for(var i=0; i< this.listeners.length; i++) {
-            this.listeners[i]()
+            this.listeners[i](param)
         }
     }
 

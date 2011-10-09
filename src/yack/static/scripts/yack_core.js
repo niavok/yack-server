@@ -21,6 +21,7 @@ function YackCore() {
         this.server = new YackServer()
         this.loginEvent = new YackEventManager();
         this.userLogged = false;
+        this.uploadTaskManager = new YackUploadTaskManager(this);
     }
 
     this.run = function() {
@@ -54,6 +55,16 @@ function YackCore() {
 	this.isLogged = function() {
 	    return this.userLogged;
 	}
+	
+	this.addFilesToUpload = function(files) {
+        console.log('add files');
+     
+        for (var i = 0, file; file = files[i]; i++) {
+        	task = new YackUploadTask(file, this.uploadTaskManager)
+            this.uploadTaskManager.addTask(task);
+        }
+    }
+
 	
 	this.init();
 }

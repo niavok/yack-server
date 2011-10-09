@@ -111,47 +111,14 @@ function Yack() {
         }
     }
 
-    this.addFiles = function(files) {
-        console.log('add files');
-     
-        for (var i = 0, file; file = files[i]; i++) {
-        	task = new YackTask(file, this.taskManager)
-            this.taskManager.addTask(task);
-        }
-    }
-
+    
     // Callback
     this.fileUploaded = function(task) {
         this.taskManager.deleteTask(task)
         this.downloadList.addFileByTask(task)
     }
 
-    // Action
-    this.fileInputChangeAction = function() {
-        
-        var files = self.fileChooserElement.files;
-        var filesStruct = [];
-        
-        for (var i = 0, file; file = files[i]; i++) {
-            if(file.slice) {
-                slice = file.slice(0,file.size);
-            } else if(file.webkitSlice) {
-                slice = file.webkitSlice(0,file.size);
-            } else if(file.mozSlice) {
-            	slice = file.mozSlice(0,file.size);
-            } else {
-                // Fail to find slice method
-                alter("Your browser is too all : file.slice method is missing."); 
-                return;
-            }
-
- 
-           filesStruct[i] = {'name' : file.name , 'size' : file.size, 'blob' : slice}
-        }
-        
-        self.addFiles(filesStruct);
-        return true;
-    }
+    
 
     this.pauseAllAction = function() {
 	    self.taskManager.pauseAll()

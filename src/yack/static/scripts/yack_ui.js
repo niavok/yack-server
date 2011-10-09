@@ -32,6 +32,8 @@ function YackUI() {
         
         this.yackTabManager.addTab(new YackUploadTab());
         this.yackTabManager.addTab(new YackFilesTab());
+        this.yackTabManager.addTab(new YackSettingsTab());
+        this.yackTabManager.addTab(new YackMoreTabsTab());
     }
     
     this.init();
@@ -58,9 +60,9 @@ function YackTabManager(tabRootComponent, contentRootComponent) {
         var tabHeaderBlock =  document.createElement('div');
         tabHeaderBlock.setAttribute("class", "yack_unselected_tab_header");
         var tabHeaderTitleBlock =  document.createElement('div');
-        tabHeaderTitleBlock.setAttribute("class", "yabk_tab_header_title");
+        tabHeaderTitleBlock.setAttribute("class", "yack_tab_header_title");
         var tabHeaderContentBlock =  document.createElement('div');
-        tabHeaderContentBlock.setAttribute("class", "yabk_tab_header_content");
+        tabHeaderContentBlock.setAttribute("class", "yack_tab_header_content");
         
         tabHeaderTitleBlock.appendChild(tab.getHeaderTitleComponent())
         tabHeaderContentBlock.appendChild(tab.getHeaderContentComponent())
@@ -93,7 +95,6 @@ function YackTabManager(tabRootComponent, contentRootComponent) {
 
     
     this.select = function(tab) {
-         alert("select")
          // Deselect previous element
          var previouslySelectedTab = this.selectedTab;
          if(previouslySelectedTab != null) {
@@ -233,5 +234,61 @@ function YackFilesTab() {
     this.init();
 }
 
+function YackMoreTabsTab() {
 
+    this.init = function() {
+        this.title = "moretabs"
+        this.headerTitleComponent =  document.createElement('p');
+        this.headerTitleComponent.innerHTML = "More tabs";
+
+
+        this.headerContentComponent =  document.createElement('div');
+        
+        this.contentComponent =  document.createElement('div');
+        this.contentComponent.innerHTML = "More tabs !"
+    }
+    
+    this.getContentComponent = function() {
+        return this.contentComponent;    
+    }
+    
+    this.getHeaderTitleComponent = function() {
+        return this.headerTitleComponent;
+    }
+    
+    this.getHeaderContentComponent = function() {
+        return this.headerContentComponent;
+    }
+    
+    this.init();
+}
+
+function YackSettingsTab() {
+
+    this.init = function() {
+        this.title = "settings"
+        this.headerTitleComponent =  document.createElement('p');
+        this.headerTitleComponent.innerHTML = "Settings";
+
+
+        this.headerContentComponent =  document.createElement('div');
+        
+        this.contentComponent =  document.createElement('div');
+        this.contentComponent.innerHTML = "Settings tab !"
+    }
+    
+    this.getContentComponent = function() {
+        return this.contentComponent;    
+    }
+    
+    this.getHeaderTitleComponent = function() {
+        return this.headerTitleComponent;
+    }
+    
+    this.getHeaderContentComponent = function() {
+        return this.headerContentComponent;
+    }
+    
+    this.init();
+}
 

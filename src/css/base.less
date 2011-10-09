@@ -63,3 +63,50 @@ a:hover {
     font-family: "courrier new", courier;
     font-weight: bold;
 }
+
+#user_block {
+    font-size: 14px;
+    height: 20px;
+    text-align: center;
+    padding: 10px;
+}
+
+#tabs_block {
+    padding-top: 30px;
+    padding-left: 10px;
+
+    .yack_selected_tab_header {
+        background: @light_background_color;
+        .rounded_corners_bottom_left(10px);
+        .rounded_corners_top_left(10px);
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    .yack_unselected_tab_header {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 0px;
+        padding-right: 0px;
+        margin-left: 20px;
+        margin-right: 20px;
+        cursor: pointer;
+        border-bottom: 1px solid @border_color;
+        margin-bottom: -1px;
+    }
+
+    .yack_unselected_tab_header:hover {
+        color: @hover_link_color;
+    }
+    
+    .yack_tab_header_title {
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+    }
+    
+}
+
+

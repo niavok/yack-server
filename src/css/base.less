@@ -20,6 +20,16 @@ a:hover {
     color: @hover_link_color;
 }
 
+h1 {
+    font-size: 42px;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: bold;
+}
+
 #menu_panel {
     width: 300px;
     background: @dark_background_color;
@@ -77,8 +87,8 @@ a:hover {
 
     .yack_selected_tab_header {
         background: @light_background_color;
-        .rounded_corners_bottom_left(10px);
-        .rounded_corners_top_left(10px);
+        .rounded_corners_bottom_left(20px);
+        .rounded_corners_top_left(20px);
         padding-top: 15px;
         padding-bottom: 15px;
         padding-left: 20px;
@@ -109,4 +119,67 @@ a:hover {
     
 }
 
+.upload_tab {
+    
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    
+    .quota_bar {
+        float: right;
+        font-size: 14px;
+        font-weight: bold;
+    }
 
+    .upload_block {
+        .rounded_corners(30px);
+        background: @dark_background_color;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 30px;
+        padding-right: 30px;
+        
+        margin-top: 30px;
+        margin-bottom: 30px;
+        margin-left: 30px;
+        margin-right: 30px;
+        
+        
+        .upload_block_subbox {
+            .display-box;
+            .box-orient(horizontal);
+            .box-align(center);
+            .box-pack(end);
+             width: 100%;
+             height: 100%;
+            
+            .file_chooser_block {
+                .box-flex(1);
+                //.box-align;
+                //.box-pack;
+                text-align: center;
+                
+                height: 100px;
+                .display-box;
+                .box-orient(vertical);
+                .box-align(center);
+                .box-pack(end);
+                input {
+                    margin-bottom: 30px;
+                }
+                
+            }
+            
+            .drag_drop_block {
+                .box-flex(1);
+                //.box-align;
+                //.box-pack(end);
+                text-align: center;
+                height: 100px;
+                border-left: 1px solid @border_color;
+            }
+            
+        }
+    }
+}

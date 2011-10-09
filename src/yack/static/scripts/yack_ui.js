@@ -186,8 +186,7 @@ function YackUploadTab() {
 
         this.headerContentComponent =  document.createElement('div');
         
-        this.contentComponent =  document.createElement('div');
-        this.contentComponent.innerHTML = "Plop !"
+        this.contentComponent =  this.generateContent();
     }
     
     this.getContentComponent = function() {
@@ -200,6 +199,78 @@ function YackUploadTab() {
     
     this.getHeaderContentComponent = function() {
         return this.headerContentComponent;
+    }
+    
+    this.generateContent = function() {
+    
+        var content = document.createElement('div');
+        content.setAttribute("class", "upload_tab");
+        
+        // Quota bar
+        var quotaBar = document.createElement('div');
+        quotaBar.setAttribute("class", "quota_bar");
+        quotaBar.appendChild(document.createTextNode("Quota"));
+                
+        // Title
+        var title = document.createElement('h1');
+        title.appendChild(document.createTextNode("Upload"));
+        
+        content.appendChild(quotaBar);
+        content.appendChild(title);
+        
+        // Upload block
+        var uploadBlock = document.createElement('div');
+        uploadBlock.setAttribute("class", "upload_block");
+        
+            // Title
+            var uploadBlockTitle = document.createElement('h2');
+            uploadBlockTitle.appendChild(document.createTextNode("Select files to upload"));
+            // SubBox
+            var uploadBlockSubBox = document.createElement('div');
+            uploadBlockSubBox.setAttribute("class", "upload_block_subbox");
+
+                // FileChooser Block
+                var fileChooserBlock = document.createElement('div');
+                fileChooserBlock.setAttribute("class", "file_chooser_block");
+
+                    // File Chooser
+                    var fileChooser = document.createElement('input');
+                    fileChooser.setAttribute("type", "file");
+                    fileChooser.setAttribute("multiple", "multiple");
+                    
+                    // Label
+                    var fileChooserLabel = document.createElement('p');
+                    fileChooserLabel.appendChild(document.createTextNode("You can select multiple files ..."));
+                fileChooserBlock.appendChild(fileChooser);
+                fileChooserBlock.appendChild(fileChooserLabel);
+                    
+                // DragDrop Block
+                var dragDropBlock = document.createElement('div');
+                dragDropBlock.setAttribute("class", "drag_drop_block");
+
+                    // Image
+                    var dragDropImage = document.createElement('img');
+                    dragDropImage.setAttribute("src", "static/yack_drag_drop_75px.png");
+                    
+                    // Label
+                    var dragDropLabel = document.createElement('p');
+                    dragDropLabel.appendChild(document.createTextNode("... or drag them here."));
+                    
+                dragDropBlock.appendChild(dragDropImage);
+                dragDropBlock.appendChild(dragDropLabel);
+            uploadBlockSubBox.appendChild(fileChooserBlock);
+            uploadBlockSubBox.appendChild(dragDropBlock);
+                    
+        uploadBlock.appendChild(uploadBlockTitle);
+        uploadBlock.appendChild(uploadBlockSubBox);
+
+        
+        content.appendChild(quotaBar);
+        content.appendChild(title);
+        content.appendChild(uploadBlock);
+
+        
+        return content;
     }
     
     this.init();
@@ -230,6 +301,8 @@ function YackFilesTab() {
     this.getHeaderContentComponent = function() {
         return this.headerContentComponent;
     }
+    
+    
     
     this.init();
 }

@@ -187,7 +187,16 @@ function YackUploadTab() {
         this.headerContentComponent =  document.createElement('div');
         
         this.contentComponent =  this.generateContent();
+        
+        // Bind events
+        var that = this;
+        yack.core.uploadTaskManager.taskCreatedEvent.register(function (e) { that.onCoreTaskCreatedEvent(e)})
+        yack.core.uploadTaskManager.taskStateChangedEvent.register(function (e) { that.onCoreTaskStateChangedEvent(e)})
+        yack.core.uploadTaskManager.taskProgressChangedEvent.register(function (e) { that.onCoreTaskProgressChangedEvent(e)})
+        yack.core.uploadTaskManager.taskFileIdChangedEvent.register(function (e) { that.onCoreTaskFileIdChangedEvent(e)})        
     }
+    
+   
     
     this.getContentComponent = function() {
         return this.contentComponent;    
@@ -272,8 +281,8 @@ function YackUploadTab() {
         tasksBlock.setAttribute("class", "tasks_block");
 
             // Task list
-            var tasksList = document.createElement('div');
-            tasksList.setAttribute("class", "tasks_list");
+            this.tasksList = document.createElement('div');
+            this.tasksList.setAttribute("class", "tasks_list");
 
             // Task controls
             var tasksControls = document.createElement('div');
@@ -340,7 +349,7 @@ function YackUploadTab() {
             tasksControls.appendChild(maxUploadBlock);
             tasksControls.appendChild(interruptedFilesBlock);
     
-        tasksBlock.appendChild(tasksList);
+        tasksBlock.appendChild(this.tasksList);
         tasksBlock.appendChild(tasksControls);
            
         
@@ -383,6 +392,19 @@ function YackUploadTab() {
         return true;
     }
     
+    
+    this.onCoreTaskCreatedEvent = function(e) {
+        this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>Create "+e
+    }
+    this.onCoreTaskStateChangedEvent = function(e) {
+            this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>StateChanged "+e
+    }
+    this.onCoreTaskProgressChangedEvent = function(e) {
+            this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>ProgressChanged "+e
+    }
+    this.onCoreTaskFileIdChangedEvent = function(e) {
+            this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>IdChanged "+e
+    }
     
     this.init();
 }

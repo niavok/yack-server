@@ -32,6 +32,7 @@ function YackUploadTask(file, listener) {
                 this.setState(data.value)
 	            break;
 	        case 'progress':
+    	        console.log(data.value);
 	            this.setProgress(data.value)
 	            break;
             case 'set_sha':
@@ -72,6 +73,7 @@ function YackUploadTask(file, listener) {
 	this.init = function(file, listener) {
 		this.id = yack_taskNextId++;
 		this.file = file;
+		this.progress = 0;
         this.listener = listener;
         this.listener.taskCreated(this)
 	}

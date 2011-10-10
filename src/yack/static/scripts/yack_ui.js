@@ -394,19 +394,96 @@ function YackUploadTab() {
     
     
     this.onCoreTaskCreatedEvent = function(e) {
-        this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>Create "+e
+        //this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>Create "+e.file.name
+        taskComponent = new YackUploadTaskBlockComponent(e);
+        
+        this.tasksList.appendChild(taskComponent.getComponent());
     }
     this.onCoreTaskStateChangedEvent = function(e) {
-            this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>StateChanged "+e
+          //  this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>StateChanged "+e.state
     }
     this.onCoreTaskProgressChangedEvent = function(e) {
-            this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>ProgressChanged "+e
+            //this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>ProgressChanged "+e.progress
     }
     this.onCoreTaskFileIdChangedEvent = function(e) {
-            this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>IdChanged "+e
+           // this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>IdChanged "+e.distantId
     }
     
     this.init();
+}
+
+function YackUploadTaskBlockComponent(task) {
+    
+    this.task = task;
+    
+    this.init = function() {
+        var that = this;
+        
+        // Block
+        this.taskBlock = document.createElement('div');
+        this.taskBlock.setAttribute("class", "task_block");
+            //Cancel
+        
+            // Title
+            var taskTitle = document.createElement('h2');
+             
+                // Percentage
+                this.taskPercent = document.createElement('span');
+                this.taskPercent.appendChild(document.createTextNode(parseInt(this.task.progress*100)+ ' %'));
+
+                // name
+                this.taskName = document.createElement('a');
+                this.taskName.appendChild(document.createTextNode(this.task.file.name));
+                
+            taskTitle.appendChild(this.taskPercent);
+            taskTitle.appendChild(this.taskName);
+        this.taskBlock.appendChild(taskTitle);
+               
+            // Todo
+        
+        // Handlers
+        yack.core.uploadTaskManager.taskCreatedEvent.register(function (e) { that.onCoreTaskCreatedEvent(e)})
+        yack.core.uploadTaskManager.taskStateChangedEvent.register(function (e) { that.onCoreTaskStateChangedEvent(e)})
+        yack.core.uploadTaskManager.taskProgressChangedEvent.register(function (e) { that.onCoreTaskProgressChangedEvent(e)})
+        yack.core.uploadTaskManager.taskFileIdChangedEvent.register(function (e) { that.onCoreTaskFileIdChangedEvent(e)})
+    }
+
+    this.getComponent = function() {
+        return this.taskBlock;
+    }
+    
+    this.onCoreTaskCreatedEvent = function(e) {
+        if(e != this.task) {
+            return
+        }
+
+    }
+    this.onCoreTaskStateChangedEvent = function(e) {
+        if(e != this.task) {
+            return
+        }
+
+    }
+    this.onCoreTaskProgressChangedEvent = function(e) {
+        if(e != this.task) {
+            return
+        }
+        // Clean
+         while (this.taskPercent.hasChildNodes()) {
+            this.taskPercent.removeChild(this.taskPercent.lastChild);
+         }
+        console.log("update progress : "+this.task.progress)
+        this.taskPercent.appendChild(document.createTextNode(parseInt(this.task.progress*100)+ ' %'));
+
+    }
+    this.onCoreTaskFileIdChangedEvent = function(e) {
+        if(e != this.task) {
+            return
+        }
+
+    }
+    
+    this.init()
 }
 
 function YackFilesTab() {

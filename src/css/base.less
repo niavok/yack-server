@@ -208,11 +208,28 @@ h2 {
     .tasks_block {
         width: 100%;
         .display-box;
-        .box-align(end);
+        .box-align(start);
         
         
         .tasks_list {
             .box-flex(1);
+            
+            .task_block {
+                margin-bottom: 20px;
+                .rounded_corners(20px);
+                border: 1px solid @border_color;
+                padding: 10px;
+                padding-left: 20px;
+                padding-right: 20px;
+                
+                
+                h2 {
+                    span {
+                        margin-right: 20px;
+                    }
+                }
+            }
+            
         }
         
         .tasks_controls {

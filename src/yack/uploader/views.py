@@ -25,6 +25,7 @@ from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import csrf_exempt
 from django.core.servers.basehttp import FileWrapper
+from django.utils.datetime_safe import datetime
 import os
 import json
 
@@ -73,7 +74,7 @@ def command(request):
     if auth_token and auth_id:
         # Try to authenticate
         try:
-            auth_user = YackFile.objects.get(pk=auth_id, auth_token=auth_token)
+            auth_user = YackUser.objects.get(pk=auth_id, auth_token=auth_token)
         except ObjectDoesNotExist:
             # Invalid token or user
             data = json.dumps([{'error': 'invalid auth token or id'}])
@@ -112,9 +113,10 @@ def command(request):
             yackFile.owner = auth_user
             yackFile.size = size
             yackFile.sha = sha
+            yackFile.creation_date = datetime.now()
             yackFile.save()
             
-        data = serializers.serialize(format, [yackFile,], fields=('pk'))
+        data = json.dumps([{'id': yackFile.pk}])
         return HttpResponse(data,mimetype)
 
     if cmd == 'getFileInfo':

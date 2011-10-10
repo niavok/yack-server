@@ -177,7 +177,25 @@ class YackFile(models.Model):
         for part in self.parts.all():
             uploaded += part.size
         
-        return float(uploaded)/self.size 
+        return float(uploaded)/self.size
+    
+    def can_read(self, user):
+        if self.owner == user:
+            return True
+        
+        if user in self.allowedUsers.all():
+            return True
+
+        for group in self.allowedGroups.all():
+            if group.contain_user(user):
+                return True
+        
+        return False
+    
+    def can_write(self, user):
+        if self.owner == user:
+            return True
+        return False
 
 class YackFilePart(models.Model):
     offset = models.IntegerField()
@@ -288,6 +306,15 @@ class YackUserGroup(models.Model):
     childUsers = models.ManyToManyField("YackUser")
     childGroups = models.ManyToManyField("YackUserGroup")
 
+    def contain_user(self, user):
+        if user in self.childUsers.all():
+            return True
+        
+        for group in self.childGroups.all():
+            if group.contain_user(user):
+                return True
+        
+        return False
 
 
 

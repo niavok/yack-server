@@ -22,6 +22,7 @@ function YackUploadTask(file, listener) {
     this.worker_callback = function (e) {
 	    var data = e.data;
 	    console.log(this);
+	    console.log(data.cmd);
 	    switch (data.cmd) {
 	        case 'log':
 	            console.log('Task '+this.id +'- '+data.message);
@@ -41,7 +42,8 @@ function YackUploadTask(file, listener) {
                 
 	            this.setFileId(data.value);
 	            break;
-	    }       
+	    }  
+	    console.log(data.cmd+ "done");     
 	}
 	
 	this.start = function() {
@@ -51,7 +53,7 @@ function YackUploadTask(file, listener) {
 		var that = this;
 		this.worker = new Worker("/static/scripts/yack_worker_send_file.js");
 	    this.worker.addEventListener('message', function(e) { that.worker_callback(e);}, false);
-		this.worker.postMessage({'cmd' : 'init', 'authToken' : yack.core.userToken});
+		this.worker.postMessage({'cmd' : 'init', 'authToken' : yack.core.userToken, 'authId' : yack.core.userId});
 		this.worker.postMessage({'cmd' : 'add_file', 'file': this.file});
 		this.running = true; 
 	}

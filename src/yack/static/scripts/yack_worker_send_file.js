@@ -26,7 +26,7 @@ self.addEventListener('message', function(e) {
     var data = e.data;
     switch (data.cmd) {
         case 'init':
-            init(data.authToken);
+            init(data.authId, data.authToken);
             break;
         case 'add_file':
             addFile(data.file);
@@ -37,9 +37,9 @@ self.addEventListener('message', function(e) {
 
 var server;
 
-function init(authToken) {
+function init(authId, authToken) {
     log('yack_worker_send_file: init');
-    server = new Server(authToken);
+    server = new Server(authId, authToken);
 }
 
 function addFile(file) {
@@ -71,15 +71,16 @@ function addFile(file) {
     
 }
 
-function Server(authToken) {
+function Server(authId, authToken) {
 
+    this.authId = authId;
     this.authToken = authToken;	
 
     this.createDistantFile = function(name, size, sha) {
-          response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha, 'auth_token': authToken});
+          response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
           log('yack_worker_send_file: '+response)
           
-          return new DistantFile(response[0].pk);
+          return new DistantFile(response[0].id);
           
     }
     
@@ -87,6 +88,9 @@ function Server(authToken) {
         var xhr_object = new XMLHttpRequest();
         
         var url = "/yack/command?format=json&cmd="+command;
+        
+        params.auth_token = this.authToken
+        params.auth_id = this.authId
         
         for(param in params) {
             url += '&'+param+'='+params[param];
@@ -101,6 +105,9 @@ function Server(authToken) {
         var xhr_object = new XMLHttpRequest();
         
         var url = "/yack/command?format=json&cmd="+command;
+        
+        params.auth_token = this.authToken
+        params.auth_id = this.authId
         
         for(param in params) {
             url += '&'+param+'='+params[param];

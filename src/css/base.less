@@ -193,13 +193,17 @@ h2 {
                 
             }
             
-            .drag_drop_block {
+            .drag_drop_block, .drag_drop_block_draging {
                 .box-flex(1);
                 //.box-align;
                 //.box-pack(end);
                 text-align: center;
                 height: 100px;
                 border-left: 1px solid @border_color;
+            }
+            
+            .drag_drop_block_draging {
+                background: @light_background_color;
             }
             
         }

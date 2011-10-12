@@ -193,7 +193,43 @@ function YackUploadTab() {
         yack.core.uploadTaskManager.taskCreatedEvent.register(function (e) { that.onCoreTaskCreatedEvent(e)})
         yack.core.uploadTaskManager.taskStateChangedEvent.register(function (e) { that.onCoreTaskStateChangedEvent(e)})
         yack.core.uploadTaskManager.taskProgressChangedEvent.register(function (e) { that.onCoreTaskProgressChangedEvent(e)})
-        yack.core.uploadTaskManager.taskFileIdChangedEvent.register(function (e) { that.onCoreTaskFileIdChangedEvent(e)})        
+        yack.core.uploadTaskManager.taskFileIdChangedEvent.register(function (e) { that.onCoreTaskFileIdChangedEvent(e)})
+        
+        
+        
+        // Drag drop
+      
+        this.dragDropBlock.addEventListener("dragenter", function(e) {
+            console.log("dragenter "+e)
+            e.stopPropagation();
+            e.preventDefault();
+            that.dragDropBlock.setAttribute("class", "drag_drop_block_draging");
+        }, false);
+        
+        this.dragDropBlock.addEventListener("dragexit", function(e) {
+            console.log("dragexit "+e)
+            e.stopPropagation();
+            e.preventDefault();
+            that.dragDropBlock.setAttribute("class", "drag_drop_block");
+        }, false);
+        
+        this.dragDropBlock.addEventListener("dragover", function(e) {
+            console.log("dragover "+e)
+            e.stopPropagation();
+            e.preventDefault();
+        }, false);
+        
+        this.dragDropBlock.addEventListener("drop", function(e) {
+            console.log("drop "+e)
+            e.stopPropagation();
+            e.preventDefault();
+            that.dragDropBlock.setAttribute("class", "drag_drop_block");
+            
+            var files = e.dataTransfer.files;
+        
+            that.addFilesToUpload(files)
+            
+        }, false);
     }
     
    
@@ -256,8 +292,8 @@ function YackUploadTab() {
                 fileChooserBlock.appendChild(fileChooserLabel);
                     
                 // DragDrop Block
-                var dragDropBlock = document.createElement('div');
-                dragDropBlock.setAttribute("class", "drag_drop_block");
+                this.dragDropBlock = document.createElement('div');
+                this.dragDropBlock.setAttribute("class", "drag_drop_block");
 
                     // Image
                     var dragDropImage = document.createElement('img');
@@ -267,10 +303,10 @@ function YackUploadTab() {
                     var dragDropLabel = document.createElement('p');
                     dragDropLabel.appendChild(document.createTextNode("... or drag them here."));
                     
-                dragDropBlock.appendChild(dragDropImage);
-                dragDropBlock.appendChild(dragDropLabel);
+                this.dragDropBlock.appendChild(dragDropImage);
+                this.dragDropBlock.appendChild(dragDropLabel);
             uploadBlockSubBox.appendChild(fileChooserBlock);
-            uploadBlockSubBox.appendChild(dragDropBlock);
+            uploadBlockSubBox.appendChild(this.dragDropBlock);
             
                     
         uploadBlock.appendChild(uploadBlockTitle);
@@ -366,6 +402,14 @@ function YackUploadTab() {
     this.onUiFileInputChangeAction = function() {
         
         var files = this.fileChooser.files;
+        
+        this.addFilesToUpload(files)
+        
+        return true;
+    }
+    
+    
+    this.addFilesToUpload = function(files) {
         var filesStruct = [];
         
         for (var i = 0, file; file = files[i]; i++) {
@@ -388,10 +432,7 @@ function YackUploadTab() {
         yack.core.addFilesToUpload(filesStruct);
         
         this.fileChooser.value = ""
-        
-        return true;
     }
-    
     
     this.onCoreTaskCreatedEvent = function(e) {
         //this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>Create "+e.file.name
@@ -408,6 +449,8 @@ function YackUploadTab() {
     this.onCoreTaskFileIdChangedEvent = function(e) {
            // this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>IdChanged "+e.distantId
     }
+    
+    
     
     this.init();
 }

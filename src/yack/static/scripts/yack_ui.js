@@ -633,6 +633,30 @@ function YackUploadTaskBlockComponent(task) {
     }
     
     this.updateProgressSize = function() {
+        var percent = 0;
+        //Update percent 
+		if(this.task.state == "analysing") {
+            percent = 0;
+		} else if (this.task.state == "paused") {
+		  // Don't change the percent value
+          return;
+		} else if (this.task.state == "uploading") {
+            percent = this.task.progress;
+	    } else if (this.task.state == "uploaded") {
+            percent = 1
+		}
+                        
+        // Clean
+        while (this.progressSize.hasChildNodes()) {
+            this.progressSize.removeChild(this.progressSize.lastChild);
+        }
+        
+        if(percent == 1) {
+            this.progressSize.appendChild(document.createTextNode(yack_renderSize(this.task.file.size)));        
+        } else {
+            this.progressSize.appendChild(document.createTextNode(yack_renderSizeProgress(percent, this.task.file.size)));        
+        }
+        
     }
     
     this.updateProgressTime = function() {
@@ -700,6 +724,7 @@ function YackUploadTaskBlockComponent(task) {
         this.updateGlobalPercent()
         this.updateButtonsState()
         this.updateProgressBar();
+        this.updateProgressSize();
     }
     this.onCoreTaskProgressChangedEvent = function(e) {
         if(e != this.task) {
@@ -708,6 +733,7 @@ function YackUploadTaskBlockComponent(task) {
         this.updateStatus()
         this.updateGlobalPercent()
         this.updateProgressBar();
+        this.updateProgressSize();
     }
     this.onCoreTaskFileIdChangedEvent = function(e) {
         if(e != this.task) {

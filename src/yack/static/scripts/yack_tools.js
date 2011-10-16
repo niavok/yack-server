@@ -15,7 +15,9 @@
 // with Yack. If not, see http://www.gnu.org/licenses/.
 //
 
-function yack_render_size(size) {
+function yack_renderSize(size) {
+	var value;
+	
 	if(size > 1000000000) {
 		value = size/1000000000
 		unit = "Go"
@@ -40,7 +42,53 @@ function yack_render_size(size) {
 	
 	return displayValue + " "+ unit;
 
-}		
+}	
+
+
+function yack_renderSizeProgress(progress, size) {
+	var value;
+	var progressvalue;
+    var displayValue
+    var displayProgressValue
+	
+	if(size > 1000000000) {
+		value = size/1000000000
+		progressvalue = (progress * size)/1000000000
+		unit = "Go"
+	} else if(size > 1000000) {
+		value = size/1000000
+		progressvalue = (progress * size)/1000000
+		unit = "Mo"
+	} else if(size > 1000) {
+		value = size/1000
+		progressvalue = (progress * size)/1000
+		unit = "Ko"
+	} else {
+		value = size
+		progressvalue = progress * size
+		unit = "bytes"
+	}
+	
+	if(value >= 100) {
+		displayValue = parseInt(value);
+	} else if(value >= 10) {
+		displayValue = parseInt(value*10)/10;
+	} else  {
+		displayValue = parseInt(value*100)/100;
+	}
+	
+	if(progressvalue >= 100) {
+		displayProgressValue = parseInt(progressvalue);
+	} else if(value >= 10) {
+		displayProgressValue = parseInt(progressvalue*10)/10;
+	} else  {
+		displayProgressValue = parseInt(progressvalue*100)/100;
+	}
+	
+	return displayProgressValue + " / " + displayValue + " "+ unit;
+
+}
+	
 
 function  yack_ajaxCall(url, callback) {
     var xhr_object = new XMLHttpRequest();
@@ -57,3 +105,4 @@ function  yack_ajaxCall(url, callback) {
     return eval(xhr_object.responseText);
 
 }
+

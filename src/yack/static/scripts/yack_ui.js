@@ -196,6 +196,8 @@ function YackUploadTab() {
         yack.core.uploadTaskManager.taskFileIdChangedEvent.register(function (e) { that.onCoreTaskFileIdChangedEvent(e)})
         
         
+        yack.core.changeInterruptedFilesListEvent.register(function (e) { that.onChangeInterruptedFilesListEvent(e)})
+        
         
         // Drag drop
       
@@ -230,6 +232,7 @@ function YackUploadTab() {
             that.addFilesToUpload(files)
             
         }, false);
+        
     }
     
    
@@ -370,15 +373,15 @@ function YackUploadTab() {
                      interruptedFilesTitle.appendChild(document.createTextNode("Interrupted files"));
                     
                      // Interrupted files list
-                     var interruptedFilesList = document.createElement('div');
-                    interruptedFilesList.setAttribute("class", "interrupted_files_list");
+                     this.interruptedFilesList = document.createElement('div');
+                     this.interruptedFilesList.setAttribute("class", "interrupted_files_list");
                 
                      // Interrupted files label
                      var interruptedFilesLabel = document.createElement('p');
                      interruptedFilesLabel.appendChild(document.createTextNode("You must upload these files again to finish the transfer."));
 
                 interruptedFilesBlock.appendChild(interruptedFilesTitle);                
-                interruptedFilesBlock.appendChild(interruptedFilesList);
+                interruptedFilesBlock.appendChild(this.interruptedFilesList);
                 interruptedFilesBlock.appendChild(interruptedFilesLabel);                                
                 
             tasksControls.appendChild(controlButtonsBlock);
@@ -451,6 +454,43 @@ function YackUploadTab() {
     }
     
     
+    this.onChangeInterruptedFilesListEvent = function() {
+        this.generateInterruptedFilesList()
+    }
+    
+    this.generateInterruptedFilesList = function() {
+        var list = yack.core.interruptedFilesList;
+        console.log("generateInterruptedFilesList "+list.length);
+
+        for (var i = 0, file; file = list[i]; i++) {
+            var interruptedFileBlock = document.createElement('div');
+            interruptedFileBlock.setAttribute("class", "interrupted_file_block");
+            
+                // Name
+                var interruptedFileName = document.createElement('div');
+                interruptedFileName.setAttribute("class", "interrupted_file_name");
+                interruptedFileName.appendChild(document.createTextNode(file.name));
+                
+                // Percent
+                var interruptedFilePercent = document.createElement('div');
+                interruptedFilePercent.setAttribute("class", "interrupted_file_percent");
+                interruptedFilePercent.appendChild(document.createTextNode(parseInt(file.progress*100)+" %"));
+
+                
+                // Cancel
+                var interruptedFileCancel = document.createElement('div');
+                interruptedFileCancel.setAttribute("class", "interrupted_file_cancel");
+
+
+            interruptedFileBlock.appendChild(interruptedFileName);
+            interruptedFileBlock.appendChild(interruptedFilePercent);
+            interruptedFileBlock.appendChild(interruptedFileCancel);
+
+
+            this.interruptedFilesList.appendChild(interruptedFileBlock);
+        }
+    }
+
     
     this.init();
 }

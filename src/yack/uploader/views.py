@@ -119,6 +119,8 @@ def command(request):
         data = json.dumps([{'id': yackFile.pk}])
         return HttpResponse(data,mimetype)
 
+
+
     if cmd == 'getFileInfo':
         pk = request.GET.get('pk','')
         
@@ -178,6 +180,19 @@ def command(request):
         
         data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_read(auth_user) ])
         return HttpResponse(data,mimetype)
+    
+    
+    if cmd == 'getInterrupedFilesList':
+        
+        if not auth_user:
+            data = json.dumps([{'error': 'you must be logged to get the interrupted files list'}])
+            return HttpResponse(data, mimetype)
+        
+        files = YackFile.objects.all()
+        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_write(auth_user)  and yackFile.get_progress() < 1])
+        return HttpResponse(data,mimetype)
+    
+    
     
     if cmd == 'getFileLink':
         

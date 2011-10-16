@@ -466,23 +466,87 @@ function YackUploadTaskBlockComponent(task) {
         this.taskBlock = document.createElement('div');
         this.taskBlock.setAttribute("class", "task_block");
             //Cancel
-        
+            this.cancelButton = document.createElement('div');
+            this.cancelButton.setAttribute("class", "cancel_button");
+
             // Title
             var taskTitle = document.createElement('h2');
              
                 // Percentage
                 this.taskPercent = document.createElement('span');
-                this.taskPercent.appendChild(document.createTextNode(parseInt(this.task.progress*100)+ ' %'));
 
                 // name
                 this.taskName = document.createElement('a');
                 this.taskName.appendChild(document.createTextNode(this.task.file.name));
-                
+            
             taskTitle.appendChild(this.taskPercent);
             taskTitle.appendChild(this.taskName);
+            
+            // SubBlock 2 colomns
+            var twoColumn = document.createElement('div');
+            twoColumn.setAttribute("class", "two_column");
+                // Left colomn
+                var leftColumn = document.createElement('div');
+                leftColumn.setAttribute("class", "left_column");
+                    // Progress block
+                    var progressBlock = document.createElement('div');
+                    progressBlock.setAttribute("class", "progress_block");
+                        // Progress bar
+                        this.progressBar = document.createElement('canvas');
+                        this.progressBar.setAttribute("class", "progress_bar");                        
+                        // Progress size
+                        this.progressSize = document.createElement('div');
+                        this.progressSize.setAttribute("class", "progress_size");
+                    progressBlock.appendChild(this.progressBar);
+                    progressBlock.appendChild(this.progressSize);
+
+                        
+                    // Status block
+                    var statusBlock = document.createElement('div');
+                    statusBlock.setAttribute("class", "status_block");
+                        // Status
+                        this.status = document.createElement('div');
+                        this.status.setAttribute("class", "status");
+                        
+                        // Time
+                        this.time = document.createElement('div');
+                        this.time.setAttribute("class", "time");
+                    statusBlock.appendChild(this.status);
+                    statusBlock.appendChild(this.time);
+
+
+                leftColumn.appendChild(progressBlock);
+                leftColumn.appendChild(statusBlock);
+                        
+                // Rigth colomn
+                var rightColumn = document.createElement('div');
+                rightColumn.setAttribute("class", "right_column");
+                    // Pause button
+                    this.pauseButton = document.createElement('a');
+                    this.pauseButton.setAttribute("class", "inactive_button");
+                    this.pauseButton.appendChild(document.createTextNode("pause"));
+                                        
+                    // Resume button
+                    this.resumeButton = document.createElement('a');
+                    this.resumeButton.setAttribute("class", "inactive_button");
+                    this.resumeButton.appendChild(document.createTextNode("resume"));
+                
+                rightColumn.appendChild(this.pauseButton);
+                rightColumn.appendChild(this.resumeButton);
+
+            twoColumn.appendChild(leftColumn);                
+            twoColumn.appendChild(rightColumn);
+
+        this.taskBlock.appendChild(this.cancelButton);            
         this.taskBlock.appendChild(taskTitle);
+        this.taskBlock.appendChild(twoColumn);
                
-            // Todo
+        this.updateGlobalPercent();
+        this.updateProgressBar();
+        this.updateProgressSize();
+        this.updateProgressTime();
+        this.updateStatus();
+        this.updateButtonsState();
         
         // Handlers
         yack.core.uploadTaskManager.taskCreatedEvent.register(function (e) { that.onCoreTaskCreatedEvent(e)})
@@ -495,29 +559,123 @@ function YackUploadTaskBlockComponent(task) {
         return this.taskBlock;
     }
     
+    
+    this.updateGlobalPercent = function() {
+        
+        
+        var percent = 0;
+        //Update percent 
+		if(this.task.state == "analysing") {
+            percent = 0
+		} else if (this.task.state == "paused") {
+		  // Don't change the percent value
+          return;
+		} else if (this.task.state == "uploading") {
+            percent = parseInt(this.task.progress*100)
+	    } else if (this.task.state == "uploaded") {
+            percent = 100
+		}
+         
+        // Clean
+        while (this.taskPercent.hasChildNodes()) {
+            this.taskPercent.removeChild(this.taskPercent.lastChild);
+        }
+        this.taskPercent.appendChild(document.createTextNode(percent + ' %'));
+    }
+    
+    this.updateProgressBar = function() {
+        if (this.progressBar.getContext){  
+            var ctx = this.progressBar.getContext('2d');  
+            ctx.fillStyle = "rgb(233,233,233)";  
+            ctx.fillRect (0, 0, this.progressBar.width, this.progressBar.height);  
+  
+            var pxWidth = this.task.progress * this.progressBar.width
+  
+            ctx.fillStyle = "rgb(54, 0, 128)";  
+            ctx.fillRect (0, 0, pxWidth, this.progressBar.height); 
+            
+        } else {  
+            // Canvas not supported
+            return
+        }  
+    }
+    
+    this.updateProgressSize = function() {
+    }
+    
+    this.updateProgressTime = function() {
+    }
+    
+    this.updateStatus = function() {
+        // Clean
+        while (this.status.hasChildNodes()) {
+            this.status.removeChild(this.status.lastChild);
+        }
+        
+        //Update status        
+		if(this.task.state == "analysing" ) {
+		    var percent = 0;
+		    if(this.task.progress != -1) {
+		        percent = parseInt(this.task.progress*100);
+		    }
+		    this.status.appendChild(document.createTextNode("Analysing (" + percent + " %)"));
+		} else if(this.task.state == "paused") {
+		    this.status.appendChild(document.createTextNode("Paused"));
+		} else if(this.task.state == "uploading") {
+		    this.status.appendChild(document.createTextNode("Uploading"));		
+        } else if (this.task.state == "uploaded") {
+		    this.status.appendChild(document.createTextNode("Uploaded"));		
+		}
+        
+    }
+    
+    this.updateButtonsState = function() {
+        //Update button state        
+        var that = this;
+		if(this.task.state == "analysing" || this.task.state == "uploading") {
+            this.resumeButton.setAttribute("class", "inactive_button");
+            this.resumeButton.onclick = null;
+            
+            this.pauseButton.setAttribute("class", "active_button");
+            this.pauseButton.onclick = function() {
+                that.task.pause();
+            };
+            
+		} else {
+            this.resumeButton.setAttribute("class", "active_button");
+            this.resumeButton.onclick = function() {
+                that.task.start();
+            };
+            
+            this.pauseButton.setAttribute("class", "inactive_button");
+            this.pauseButton.onclick = null;
+		}
+    }
+    
     this.onCoreTaskCreatedEvent = function(e) {
         if(e != this.task) {
             return
         }
+        this.updateStatus()
+        this.updateGlobalPercent()
 
     }
     this.onCoreTaskStateChangedEvent = function(e) {
         if(e != this.task) {
             return
         }
-
+        this.updateStatus()
+        this.updateGlobalPercent()
+        this.updateButtonsState()
+        this.updateProgressBar();
     }
     this.onCoreTaskProgressChangedEvent = function(e) {
         if(e != this.task) {
             return
         }
-        // Clean
-         while (this.taskPercent.hasChildNodes()) {
-            this.taskPercent.removeChild(this.taskPercent.lastChild);
-         }
-        console.log("update progress : "+this.task.progress)
-        this.taskPercent.appendChild(document.createTextNode(parseInt(this.task.progress*100)+ ' %'));
-
+        this.updateStatus()
+        this.updateGlobalPercent()
+        this.updateProgressBar();
     }
     this.onCoreTaskFileIdChangedEvent = function(e) {
         if(e != this.task) {

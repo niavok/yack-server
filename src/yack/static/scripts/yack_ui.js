@@ -455,6 +455,36 @@ function YackUploadTab() {
     this.init();
 }
 
+function YackProgressBar() {
+
+    this.init = function() {
+        this.element = document.createElement('canvas');
+        this.element.setAttribute("class", "progress_bar");                        
+    } 
+    
+    this.getElement = function() {
+        return this.element;
+    }
+    
+    this.setValue = function(value) {
+        if (this.element.getContext){  
+            var ctx = this.element.getContext('2d');  
+            ctx.fillStyle = "rgb(233,233,233)";  
+            ctx.fillRect (0, 0, this.element.width, this.element.height);  
+  
+            var pxWidth = value * this.element.width
+  
+            ctx.fillStyle = "rgb(54, 0, 128)";  
+            ctx.fillRect (0, 0, pxWidth, this.element.height); 
+            
+        } else {  
+            // Canvas not supported
+            return
+        }  
+    }
+    this.init();
+}
+
 function YackUploadTaskBlockComponent(task) {
     
     this.task = task;
@@ -492,12 +522,11 @@ function YackUploadTaskBlockComponent(task) {
                     var progressBlock = document.createElement('div');
                     progressBlock.setAttribute("class", "progress_block");
                         // Progress bar
-                        this.progressBar = document.createElement('canvas');
-                        this.progressBar.setAttribute("class", "progress_bar");                        
+                        this.progressBar = new YackProgressBar();
                         // Progress size
                         this.progressSize = document.createElement('div');
                         this.progressSize.setAttribute("class", "progress_size");
-                    progressBlock.appendChild(this.progressBar);
+                    progressBlock.appendChild(this.progressBar.getElement());
                     progressBlock.appendChild(this.progressSize);
 
                         
@@ -584,20 +613,23 @@ function YackUploadTaskBlockComponent(task) {
     }
     
     this.updateProgressBar = function() {
-        if (this.progressBar.getContext){  
-            var ctx = this.progressBar.getContext('2d');  
-            ctx.fillStyle = "rgb(233,233,233)";  
-            ctx.fillRect (0, 0, this.progressBar.width, this.progressBar.height);  
-  
-            var pxWidth = this.task.progress * this.progressBar.width
-  
-            ctx.fillStyle = "rgb(54, 0, 128)";  
-            ctx.fillRect (0, 0, pxWidth, this.progressBar.height); 
-            
-        } else {  
-            // Canvas not supported
-            return
-        }  
+        
+        var percent = 0;
+        //Update percent 
+		if(this.task.state == "analysing") {
+            percent = 0
+		} else if (this.task.state == "paused") {
+		  // Don't change the percent value
+          return;
+		} else if (this.task.state == "uploading") {
+            percent = this.task.progress
+	    } else if (this.task.state == "uploaded") {
+            percent = 1
+		}
+        
+        this.progressBar.setValue(percent);
+                 
+        
     }
     
     this.updateProgressSize = function() {

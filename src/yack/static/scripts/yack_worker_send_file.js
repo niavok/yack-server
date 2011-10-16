@@ -44,10 +44,11 @@ function init(authId, authToken) {
 
 function addFile(file) {
     log('yack_worker_send_file: add file');
-    self.postMessage({'cmd' : 'state', 'value' : 'analysing'});
     
     
     if(!file.sha) {
+        self.postMessage({'cmd' : 'state', 'value' : 'analysing'});
+
 	    sha = fileSha(file, function (progress){
 	    	self.postMessage({'cmd' : 'progress', 'value' : progress});
 	    });

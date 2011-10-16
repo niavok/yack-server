@@ -524,11 +524,15 @@ function YackUploadTaskBlockComponent(task) {
                     var progressBlock = document.createElement('div');
                     progressBlock.setAttribute("class", "progress_block");
                         // Progress bar
+                        var progressBarBlock = document.createElement('div');
+                        progressBarBlock.setAttribute("class", "progress_bar_block");
                         this.progressBar = new YackProgressBar();
+                        progressBarBlock.appendChild(this.progressBar.getElement());
+                                            
                         // Progress size
                         this.progressSize = document.createElement('div');
                         this.progressSize.setAttribute("class", "progress_size");
-                    progressBlock.appendChild(this.progressBar.getElement());
+                    progressBlock.appendChild(progressBarBlock);
                     progressBlock.appendChild(this.progressSize);
 
                         
@@ -664,7 +668,7 @@ function YackUploadTaskBlockComponent(task) {
     this.updateProgressTime = function() {
         
         
-        if(this.task.state == "analysing" || this.task.state == "uploading") {
+        if((this.task.state == "analysing" || this.task.state == "uploading")  && this.lastState == this.task.state) {
             // No valid progress
             if(this.task.progress < 0) {
                 return;
@@ -678,7 +682,6 @@ function YackUploadTaskBlockComponent(task) {
             console.log("Last progress : "+ this.lastProgress);
 
             
-
             
             if(this.lastTime != null && this.lastProgress != null) {
             
@@ -694,7 +697,6 @@ function YackUploadTaskBlockComponent(task) {
                 if(deltaProgress <= 0) {
                     return;
                 }
-                
                 
                 var progressPerSecond = deltaProgress/deltaTime;
                 
@@ -719,18 +721,18 @@ function YackUploadTaskBlockComponent(task) {
                 }
 
                 this.time.appendChild(document.createTextNode(yack_renderTime(remainingTime) + " at " + yack_renderSize(sizePerSecond)+"/s")); 
-                
-                
 
             }               
             this.lastTime = currentTime;
             this.lastProgress = this.task.progress
+            this.lastState = this.task.state
         } else {
             // Clean
             while (this.time.hasChildNodes()) {
                 this.time.removeChild(this.time.lastChild);
             }
-           this.lastTime = null;         
+           this.lastTime = null;
+           this.lastState = this.task.state    
         }
 
     }
@@ -769,6 +771,12 @@ function YackUploadTaskBlockComponent(task) {
             this.pauseButton.onclick = function() {
                 that.task.pause();
             };
+		} else if(this.task.state == "uploaded") {
+         	this.resumeButton.setAttribute("class", "inactive_button");
+            this.resumeButton.onclick = null;
+            
+            this.pauseButton.setAttribute("class", "inactive_button");
+            this.pauseButton.onclick = null;
             
 		} else {
             this.resumeButton.setAttribute("class", "active_button");

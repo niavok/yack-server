@@ -85,7 +85,7 @@ h2 {
 
 .progress_bar {
     height: 5px;
-    width: 100%;
+    //width: 100%;
 }
 
 
@@ -255,6 +255,8 @@ h2 {
         
         
         .tasks_list {
+            padding-right: 40px;
+
             .box-flex(1);
             
             .task_block {
@@ -270,6 +272,82 @@ h2 {
                     span {
                         margin-right: 20px;
                     }
+                }
+                
+                .cancel_button {
+                    float: right;
+                    width: 14px;
+                    height: 14px;
+                    background: url("/static/yack_cancel_15px.png");
+                    cursor: pointer;
+                }
+                
+                .cancel_button:hover {
+                    background: url("/static/yack_cancel_hover_15px.png");
+                }
+                
+                .two_column {
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+                    .display-box;
+                    
+                    .left_column {
+                        .box-flex(1);
+                        
+                       .progress_block {
+                           padding-top: 10px;
+                           padding-bottom: 5px;
+                           padding-left: 10px;
+                           padding-right: 10px;
+                           
+                           .display-box;
+                            .progress_bar_block {
+                                .box-flex(1);
+                                canvas {
+                                    width: 100%;
+                                }
+                            }
+                            
+                            .progress_size {
+                                padding-left: 40px;
+                                padding-right: 20px;
+                                .box-flex(0);
+                            }
+                       }
+                       
+                       .status_block {
+                           padding-top: 5px;
+                           padding-bottom: 10px;
+                           padding-left: 10px;
+                           padding-right: 10px;
+                       
+                           .display-box;
+                            .status {
+                                .box-flex(1);
+                            }
+                            
+                            .time {
+                                .box-flex(0);
+                                padding-left: 40px;
+                                padding-right: 20px;
+                            }
+                       } 
+                        
+                    }
+                
+                    .right_column {
+                        .box-flex(0);
+                        
+                        a {
+                            display: block;
+                            text-align: center;
+                        }
+                        
+                        
+                        
+                    
+                    }
+                
                 }
             }
             

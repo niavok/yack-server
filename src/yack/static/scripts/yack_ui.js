@@ -491,6 +491,8 @@ function YackUploadTaskBlockComponent(task) {
     
     this.init = function() {
         var that = this;
+        this.lastTime = null;
+        this.lastProgress = null;
         
         // Block
         this.taskBlock = document.createElement('div');
@@ -660,6 +662,77 @@ function YackUploadTaskBlockComponent(task) {
     }
     
     this.updateProgressTime = function() {
+        
+        
+        if(this.task.state == "analysing" || this.task.state == "uploading") {
+            // No valid progress
+            if(this.task.progress < 0) {
+                return;
+            }
+
+
+            var currentTime =   new Date().getTime(); // Milliseconds
+            console.log("Current time : "+ currentTime);
+            console.log("Last time : "+ this.lastTime);
+            console.log("Current progress : "+ this.task.progress);
+            console.log("Last progress : "+ this.lastProgress);
+
+            
+
+            
+            if(this.lastTime != null && this.lastProgress != null) {
+            
+                console.log("Compute estimated time");
+                // Compute estimated time
+                var deltaTime = (currentTime - this.lastTime)/1000; //In seconds 
+                var deltaProgress = this.task.progress - this.lastProgress;
+                
+                if(deltaTime < 2) {
+                    return;
+                }
+                
+                if(deltaProgress <= 0) {
+                    return;
+                }
+                
+                
+                var progressPerSecond = deltaProgress/deltaTime;
+                
+                var sizePerSecond = progressPerSecond* this.task.file.size;
+                
+                var remainingTime = (1-this.task.progress)/ progressPerSecond; // In secondes
+                
+                
+                console.log("deltaTime: "+ deltaTime);
+                console.log("deltaProgress: "+ deltaProgress);
+                console.log("progressPerSecond: "+ progressPerSecond);
+                console.log("sizePerSecond: "+ sizePerSecond);
+                console.log("remainingTime: "+ remainingTime);
+                console.log("output: "+ yack_renderTime(remainingTime) + " at " + yack_renderSize(sizePerSecond)+"/s");
+                
+                
+                
+                
+                // Clean
+                while (this.time.hasChildNodes()) {
+                    this.time.removeChild(this.time.lastChild);
+                }
+
+                this.time.appendChild(document.createTextNode(yack_renderTime(remainingTime) + " at " + yack_renderSize(sizePerSecond)+"/s")); 
+                
+                
+
+            }               
+            this.lastTime = currentTime;
+            this.lastProgress = this.task.progress
+        } else {
+            // Clean
+            while (this.time.hasChildNodes()) {
+                this.time.removeChild(this.time.lastChild);
+            }
+           this.lastTime = null;         
+        }
+
     }
     
     this.updateStatus = function() {
@@ -725,6 +798,7 @@ function YackUploadTaskBlockComponent(task) {
         this.updateButtonsState()
         this.updateProgressBar();
         this.updateProgressSize();
+        this.updateProgressTime();
     }
     this.onCoreTaskProgressChangedEvent = function(e) {
         if(e != this.task) {
@@ -734,6 +808,7 @@ function YackUploadTaskBlockComponent(task) {
         this.updateGlobalPercent()
         this.updateProgressBar();
         this.updateProgressSize();
+        this.updateProgressTime();
     }
     this.onCoreTaskFileIdChangedEvent = function(e) {
         if(e != this.task) {

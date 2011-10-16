@@ -15,6 +15,47 @@
 // with Yack. If not, see http://www.gnu.org/licenses/.
 //
 
+
+
+function yack_renderTime(time) {
+
+	
+	if(time > 3600) {
+	    var hours = parseInt(time / 3600);
+	    var minutes = parseInt((time - hours*3600)/60)
+	    
+	    var output = hours + " "+yack_pluralize(hours, "hour", "hours")
+	    if(minutes > 0) {
+	        output += " "+minutes + " "+yack_pluralize(minutes, "minute", "minutes")
+	    }
+        return output
+	} else if(time > 60) {
+		var minutes = parseInt(time / 60);
+	    var seconds = parseInt(time - minutes*60)
+	    
+	    var output = minutes + " "+yack_pluralize(minutes, "minute", "minutes")
+	    if(seconds > 0) {
+	        output += " "+seconds + " "+yack_pluralize(seconds, "second", "seconds")
+	    }
+        return output
+	} else {
+		var seconds = parseInt(time);
+		return seconds + " "+yack_pluralize(seconds, "second", "seconds")
+	}
+	
+}	
+
+
+function yack_pluralize(num, singular, plural) {
+    if( num == 1) {
+        return singular;
+    } else {
+        return plural; 
+    }
+}
+
+
+
 function yack_renderSize(size) {
 	var value;
 	

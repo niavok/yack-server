@@ -377,6 +377,47 @@ h2 {
                 margin-bottom: 20px;
                 margin-left: 0px;
                 margin-right: 0px;
+                
+                .interrupted_files_list {
+                
+                    margin-top: 10px;
+                    margin-bottom: 40px;
+                    margin-right: 5px;
+                
+                    .interrupted_file_block {
+                        .display-box;
+                        
+                        margin-bottom: 5px;
+
+                        
+                        .interrupted_file_name {
+                            .box-flex(1);
+                            text-overflow:    ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
+                        
+                        .interrupted_file_percent {
+                            .box-flex(0);
+                            margin-left: 10px;
+                            font-weight: bold;
+                        }
+                        
+                        .interrupted_file_cancel {
+                           width: 14px;
+                           height: 14px;
+                           background: url("/static/yack_cancel_15px.png");
+                           cursor: pointer;
+                           margin-left: 10px;
+                        }
+                    
+                        .interrupted_file_cancel:hover {
+                            background: url("/static/yack_cancel_hover_15px.png");
+                        }
+                    
+                    }
+                }
+                
             }
         
         }

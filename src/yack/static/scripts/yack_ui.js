@@ -469,7 +469,10 @@ function YackUploadTab() {
                 // Name
                 var interruptedFileName = document.createElement('div');
                 interruptedFileName.setAttribute("class", "interrupted_file_name");
-                interruptedFileName.appendChild(document.createTextNode(file.name));
+                var interruptedFileNameLink = document.createElement('a');
+                interruptedFileNameLink.setAttribute("href", "#");
+                interruptedFileNameLink.appendChild(document.createTextNode(file.name));
+                interruptedFileName.appendChild(interruptedFileNameLink);
                 
                 // Percent
                 var interruptedFilePercent = document.createElement('div');

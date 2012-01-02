@@ -142,7 +142,9 @@ function DistantFile(id) {
     	while(work = this.getWork()) {
 			
 			timer = new Timer()
-			var blob = file.blob.webkitSlice(work.offset, work.offset+work.size);
+			
+			
+			var blob = slice(file.blob,work.offset, work.offset+work.size);
 			var raw = reader.readAsArrayBuffer(blob);
 			
 			var sha = new Sha1();
@@ -240,7 +242,7 @@ function fileSha(file, progressCallback) {
     var i;
     
     for (i = 0; i+yack_file_read_size <= fileSize; i+=yack_file_read_size) {
-        var blob = file.blob.webkitSlice(i, i+yack_file_read_size);
+        var blob = slice(file.blob,i, i+yack_file_read_size);
         var raw = reader.readAsArrayBuffer(blob);
         
         sha.update(raw);
@@ -248,7 +250,7 @@ function fileSha(file, progressCallback) {
         progressCallback(i/fileSize)
         
     }
-    var blob = file.blob.webkitSlice(i, fileSize);
+    var blob = slice(file.blob,i, fileSize);
     var lastRaw = reader.readAsArrayBuffer(blob);
     
     sha.update(lastRaw);
@@ -274,5 +276,20 @@ function Timer() {
 
 }
 
+
+function slice(file, begin, end) {
+
+    if(file.slice) {
+        return file.slice(begin,end);
+    } else if(file.webkitSlice) {
+        return file.webkitSlice(begin,end);
+    } else if(file.mozSlice) {
+    	return file.mozSlice(begin,end);
+    } else {
+        // Fail to find slice method
+        alert("Your browser is too all : file.slice method is missing."); 
+        return;
+    }
+}
 
 

@@ -19,7 +19,7 @@ importScripts('sha1.js')
 
 var yack_initial_block_size = 100000; // 100 ko
 var yack_file_read_size = 5000000; // 5 mo
-
+var worker_running = true;
 
 
 self.addEventListener('message', function(e) {
@@ -31,6 +31,9 @@ self.addEventListener('message', function(e) {
         case 'add_file':
             addFile(data.file);
             break;
+        case 'close':
+            worker_running = false;
+            break;
     }    
     
 }, false);
@@ -40,6 +43,7 @@ var server;
 function init(authId, authToken) {
     log('yack_worker_send_file: init');
     server = new Server(authId, authToken);
+
 }
 
 function addFile(file) {
@@ -52,6 +56,9 @@ function addFile(file) {
 	    sha = fileSha(file, function (progress){
 	    	self.postMessage({'cmd' : 'progress', 'value' : progress});
 	    });
+	    if(!worker_running) {
+    	    return;
+	    }
 	    
 	    self.postMessage({'cmd' : 'set_sha', 'value' : sha});
     } else {
@@ -67,6 +74,9 @@ function addFile(file) {
     distantFile.send(file, function (progress){
     	self.postMessage({'cmd' : 'progress', 'value' : progress});
     });
+    if(!worker_running) {
+	    return;
+    }
     
     self.postMessage({'cmd' : 'state', 'value' : 'uploaded'});
     
@@ -140,6 +150,9 @@ function DistantFile(id) {
 		this.block_size = yack_initial_block_size
 
     	while(work = this.getWork()) {
+			if(!worker_running) {
+			    return;
+			}
 			
 			timer = new Timer()
 			
@@ -242,6 +255,10 @@ function fileSha(file, progressCallback) {
     var i;
     
     for (i = 0; i+yack_file_read_size <= fileSize; i+=yack_file_read_size) {
+        if(!worker_running) {
+            return;
+        }
+
         var blob = slice(file.blob,i, i+yack_file_read_size);
         var raw = reader.readAsArrayBuffer(blob);
         

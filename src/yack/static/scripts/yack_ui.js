@@ -150,7 +150,7 @@ function YackAuthComponent(rootComponent) {
     }
     
     this.generateConnectedState = function() {
-    this.rootComponent.innerHTML = '<p>Logged as <em>'+this.userName+'</em></p>';
+    this.rootComponent.innerHTML = '<p>Logged as <em>'+yack.core.userName+'</em></p>';
     }
     
     this.onUiLogin = function() {

@@ -55,7 +55,7 @@ def send_file(request):
         yackFile = YackFile.objects.get(pk=pk)
         
         if yackFile.sha != sha:
-            raise Http404("plop "+yackFile.sha + " " + sha)
+            raise Http404
         
     except ObjectDoesNotExist:
         raise Http404
@@ -63,7 +63,7 @@ def send_file(request):
                                     
     wrapper = FileWrapper(yackFile.file.file)
     response = HttpResponse(wrapper, content_type='application/binary')
-    response['Content-Disposition'] = 'inline; filename='+yackFile.name
+    response['Content-Disposition'] = 'inline; filename="'+yackFile.name+'"';
     response['Content-Length'] = yackFile.file.size
     return response
 

@@ -32,6 +32,7 @@ self.addEventListener('message', function(e) {
             addFile(data.file);
             break;
         case 'close':
+            log('yack_worker_send_file: close order');
             worker_running = false;
             break;
     }    
@@ -151,6 +152,7 @@ function DistantFile(id) {
 
     	while(work = this.getWork()) {
 			if(!worker_running) {
+	            log('yack_worker_send_file: close order canceled file upload');
 			    return;
 			}
 			
@@ -256,6 +258,7 @@ function fileSha(file, progressCallback) {
     
     for (i = 0; i+yack_file_read_size <= fileSize; i+=yack_file_read_size) {
         if(!worker_running) {
+            log('yack_worker_send_file: close order canceled sha computation');
             return;
         }
 

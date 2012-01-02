@@ -61,6 +61,7 @@ function YackUploadTask(file, listener) {
 	
 	this.pause = function() {
 		console.log("task pause")
+		this.worker.postMessage({'cmd' : 'close'});
 		this.worker.terminate()
 		this.running = false;
 		if(this.state == "analysing") {

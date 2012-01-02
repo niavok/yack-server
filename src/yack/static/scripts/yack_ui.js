@@ -34,8 +34,39 @@ function YackUI() {
         this.yackTabManager.addTab(new YackFilesTab());
         this.yackTabManager.addTab(new YackSettingsTab());
         this.yackTabManager.addTab(new YackMoreTabsTab());
+        
+        
+         this.yackTabManager.selectByTitle(this.extractUrlParams()["tab"]);
+        
+        
+        
+        if(this.yackTabManager.selectedTab == null) {
+             this.yackTabManager.select(this.yackTabManager.tabList[0]);
+        }
+        
+        var that =  this;
+        window.onpopstate = function(event) {
+            that.yackTabManager.selectByTitle(event.state.tab);
+        }
     }
     
+    this.extractUrlParams = function(){	
+
+	    var t = location.search.substring(1).split('&');
+
+	    var f = [];
+
+	    for (var i=0; i<t.length; i++){
+
+		    var x = t[ i ].split('=');
+
+		    f[x[0]]=x[1];
+
+	    }
+
+	    return f;
+    }
+            
     this.init();
 
 }
@@ -78,10 +109,6 @@ function YackTabManager(tabRootComponent, contentRootComponent) {
         //Set click handler
         this.setClickHandler(tab)
         
-        
-        if(this.selectedTab == null) {
-            this.select(tab)
-        }
     
     }
     
@@ -90,11 +117,13 @@ function YackTabManager(tabRootComponent, contentRootComponent) {
         var  tabHeaderBlock = this.headerMap[tab.title]
         tabHeaderBlock.onclick = function() {
             that.select(tab)
+            history.pushState({tab: tab.title}, tab.getHeaderTitleComponent(), "/?tab="+tab.title);
         }
     }
 
     
     this.select = function(tab) {
+         
          // Deselect previous element
          var previouslySelectedTab = this.selectedTab;
          if(previouslySelectedTab != null) {
@@ -116,7 +145,17 @@ function YackTabManager(tabRootComponent, contentRootComponent) {
 
          this.selectedTab = tab;
          tab.selected = true;
+             
+    }
     
+    this.selectByTitle = function(tabTitle) {
+        for (var i = 0, tab; tab = this.tabList[i]; i++) {
+            if(tab.title == tabTitle) {
+                this.select(tab);
+                break;
+            }
+        }
+        
     }
 
     this.init();

@@ -290,10 +290,14 @@ h2 {
                     margin-top: 5px;
                     margin-bottom: 5px;
                     .display-box;
+                    width: 100%;
                     
                     .left_column {
                         .box-flex(1);
-                        
+
+                       .display-box;
+                       .box-orient(vertical);
+                       
                        .progress_block {
                            padding-top: 10px;
                            padding-bottom: 5px;
@@ -301,7 +305,8 @@ h2 {
                            padding-right: 10px;
                            
                            .display-box;
-                            .progress_bar_block {
+
+                           .progress_bar_block {
                                 .box-flex(1);
                                 canvas {
                                     width: 100%;

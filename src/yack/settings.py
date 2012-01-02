@@ -2,7 +2,7 @@
 # Django settings for yack project.
 import os
 
-YACK_HOSTNAME = '127.0.0.0:8000'
+YACK_HOSTNAME = 'yack.b219.org'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -73,7 +73,7 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    '/home/fred/projets/yack/src/yack/static',
+    '/home/fred/yack/src/yack/static',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -108,7 +108,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'yack.urls'
 
 TEMPLATE_DIRS = (
-    '/home/fred/projets/yack/src/yack/templates',
+    '/home/fred/yack/src/yack/templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

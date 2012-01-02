@@ -39,7 +39,7 @@ function YackServer() {
     
     this.loadInterruptedFiles = function() {
     
-        yack_ajaxCall('/yack/command?format=json&cmd=getInterrupedFilesList&method=check&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
+        yack_ajaxCall('/yack/command?format=json&cmd=getInterrupedFilesList&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
 			if(!response[0].error) {
                 yack.core.changeInterruptedFilesList(response);
 			} else {
@@ -47,5 +47,18 @@ function YackServer() {
 			}					
 		});		
     }
+    
+    this.loadFiles = function() {
+    
+        yack_ajaxCall('/yack/command?format=json&cmd=getFileList&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
+			if(!response[0].error) {
+                yack.core.changeFilesList(response);
+			} else {
+    	        yack.error(response);
+			}					
+		});		
+    }
+    
+    
     
 }

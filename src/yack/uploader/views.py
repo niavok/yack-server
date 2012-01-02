@@ -48,9 +48,14 @@ def index(request):
 
 def send_file(request):
     pk = request.GET.get('pk','')
+    sha = request.GET.get('sha','')
     
     try:
         yackFile = YackFile.objects.get(pk=pk)
+        
+        if yackFile.sha != sha:
+            raise Http404("plop "+yackFile.sha + " " + sha)
+        
     except ObjectDoesNotExist:
         raise Http404
     
@@ -178,7 +183,7 @@ def command(request):
         
         files = YackFile.objects.all()
         
-        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_read(auth_user) ])
+        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk)+"&sha="+str(yackFile.sha), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_read(auth_user) ])
         return HttpResponse(data,mimetype)
     
     
@@ -189,7 +194,7 @@ def command(request):
             return HttpResponse(data, mimetype)
         
         files = YackFile.objects.all()
-        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_write(auth_user)  and yackFile.get_progress() < 1])
+        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'progress': yackFile.get_progress(), 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk)+"&sha="+str(yackFile.sha), 'can_write': yackFile.can_write(auth_user) }  for yackFile in files  if yackFile.can_write(auth_user)  and yackFile.get_progress() < 1])
         return HttpResponse(data,mimetype)
     
     
@@ -206,7 +211,7 @@ def command(request):
             data = json.dumps([{'error': 'you don\'t have the right to read the pack'}])
             return HttpResponse(data, mimetype)
         
-        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk) }])
+        data = json.dumps([{'id': yackFile.pk,'size': yackFile.size, 'name': yackFile.name , 'link': "/file?pk="+str(yackFile.pk)+"&sha="+str(yackFile.sha) }])
         return HttpResponse(data,mimetype)
         
     raise Http404

@@ -39,6 +39,20 @@ class YackPack(models.Model):
     allowedGroups = models.ManyToManyField("YackUserGroup")
     isPublic = models.BooleanField()
     
+    
+    def can_read(self, user):
+        if self.owner == user:
+            return True
+        
+        if user in self.allowedUsers.all():
+            return True
+
+        for group in self.allowedGroups.all():
+            if group.contain_user(user):
+                return True
+        
+        return isPublic
+    
     def __unicode__(self):
         return self.name
     
@@ -190,7 +204,7 @@ class YackFile(models.Model):
             if group.contain_user(user):
                 return True
         
-        return False
+        return isPublic
     
     def can_write(self, user):
         if self.owner == user:

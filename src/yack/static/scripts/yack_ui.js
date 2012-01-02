@@ -881,9 +881,16 @@ function YackFilesTab() {
 
         this.headerContentComponent =  document.createElement('div');
         
-        this.contentComponent =  document.createElement('div');
-        this.contentComponent.innerHTML = "Files tab !"
+        this.contentComponent =  this.generateContent();
+        
+        // Bind events
+        var that = this;
+        yack.core.uploadTaskManager.taskStateChangedEvent.register(function (e) { that.onCoreTaskStateChangedEvent(e)})
+        yack.core.changeFilesListEvent.register(function (e) { that.onChangeFilesListEvent(e)})
+        
     }
+    
+   
     
     this.getContentComponent = function() {
         return this.contentComponent;    
@@ -897,7 +904,74 @@ function YackFilesTab() {
         return this.headerContentComponent;
     }
     
+    this.generateContent = function() {
     
+        var content = document.createElement('div');
+        content.setAttribute("class", "upload_tab");
+        
+        // Quota bar
+        var quotaBar = document.createElement('div');
+        quotaBar.setAttribute("class", "quota_bar");
+        quotaBar.appendChild(document.createTextNode("Quota"));
+                
+        // Title
+        var title = document.createElement('h1');
+        title.appendChild(document.createTextNode("Files"));
+        
+        content.appendChild(quotaBar);
+        content.appendChild(title);
+        
+                 
+        // Files block
+        var filesBlock = document.createElement('div');
+        filesBlock.setAttribute("class", "files_block");
+           // files list
+           this.filesList = document.createElement('div');
+           this.filesList.setAttribute("class", "files_list");
+           
+           filesBlock.appendChild(this.filesList);
+        
+        content.appendChild(quotaBar);
+        content.appendChild(title);
+        content.appendChild(filesBlock);
+        
+        return content;
+    }
+    
+    // Action
+    
+    this.onCoreTaskStateChangedEvent = function(e) {
+          //  this.tasksList.innerHTML = this.tasksList.innerHTML+ "<br/>StateChanged "+e.state
+    }
+
+    
+    this.onChangeFilesListEvent = function() {
+        this.generateFilesList()
+    }
+    
+    this.generateFilesList = function() {
+        var list = yack.core.filesList;
+        console.log("generateFilesList "+list.length);
+
+        for (var i = 0, file; file = list[i]; i++) {
+            var fileBlock = document.createElement('div');
+            fileBlock.setAttribute("class", "file_block");
+            
+                // Name
+                var fileName = document.createElement('div');
+                fileName.setAttribute("class", "file_name");
+                var fileNameLink = document.createElement('a');
+                fileNameLink.setAttribute("href", file.link);
+                //fileNameLink.setAttribute("target", "_blank");
+                fileNameLink.appendChild(document.createTextNode(file.name));
+                fileName.appendChild(fileNameLink);
+
+            fileBlock.appendChild(fileName);
+
+            this.filesList.appendChild(fileBlock);
+        }
+    }
+
     
     this.init();
 }

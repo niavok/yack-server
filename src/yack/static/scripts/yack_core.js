@@ -22,6 +22,7 @@ function YackCore() {
         this.loginEvent = new YackEventManager();
         this.loginEvent = new YackEventManager();
         this.changeInterruptedFilesListEvent = new YackEventManager();
+        this.changeFilesListEvent = new YackEventManager();
         this.userLogged = false;
         this.uploadTaskManager = new YackUploadTaskManager(this);
     }
@@ -52,7 +53,7 @@ function YackCore() {
 		localStorage.setItem("userId", id);
 		localStorage.setItem("userToken", token);
 		this.loginEvent.fire();
-		this.loadInterruptedFiles()
+		this.loadFiles()
 	}
 	
 	this.isLogged = function() {
@@ -68,8 +69,9 @@ function YackCore() {
         }
     }
 
-    this.loadInterruptedFiles = function() {
+    this.loadFiles = function() {
         this.server.loadInterruptedFiles()
+        this.server.loadFiles()
     }
     
     this.changeInterruptedFilesList = function(interruptedFilesList) {
@@ -77,6 +79,10 @@ function YackCore() {
         this.changeInterruptedFilesListEvent.fire(interruptedFilesList);
     }
 
+    this.changeFilesList = function(filesList) {
+        this.filesList = filesList;
+        this.changeFilesListEvent.fire(filesList);
+    }
 	
 	this.init();
 }

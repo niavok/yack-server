@@ -236,7 +236,7 @@ def login(request):
     if method == 'browserid':
         token = request.GET.get('token','');
         
-        data = urllib.urlencode({'assertion': token, 'audience': '127.0.0.1:8000'})
+        data = urllib.urlencode({'assertion': token, 'audience': YACK_HOSTNAME})
         u = urllib.urlopen('https://browserid.org/verify', data)
         print u
         result = json.loads(u.read())

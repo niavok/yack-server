@@ -2,6 +2,8 @@
 # Django settings for yack project.
 import os
 
+YACK_HOSTNAME = '127.0.0.0:8000'
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 

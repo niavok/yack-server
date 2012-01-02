@@ -33,6 +33,7 @@ from models import YackFile
 from models import YackFileSubPart
 from models import YackFilePart
 from models import YackUser
+from settings import *
 
 import urllib
 from yack.uploader.tools import YackTools

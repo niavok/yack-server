@@ -145,6 +145,12 @@
 	box-flex : @flex;
 }
 
+.box-sizing {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
 .transform(@angle,@scale:1) {
     -moz-transform:rotate(@angle) scale(@scale);
 }

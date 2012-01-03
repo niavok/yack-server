@@ -56,6 +56,17 @@ function YackCore() {
 		this.loadFiles()
 	}
 	
+	this.logout = function() {
+    	this.userToken = null
+		this.userLogged = false;
+		this.userName = null; 
+		this.userId = null;
+		localStorage.setItem("userId", null);
+		localStorage.setItem("userToken", null);
+    	this.loginEvent.fire();
+		this.loadFiles()
+	}
+	
 	this.isLogged = function() {
 	    return this.userLogged;
 	}
@@ -70,8 +81,13 @@ function YackCore() {
     }
 
     this.loadFiles = function() {
-        this.server.loadInterruptedFiles()
-        this.server.loadFiles()
+        if(this.userLogged) {
+            this.server.loadInterruptedFiles()
+            this.server.loadFiles()
+        } else {
+            this.changeInterruptedFilesList([]);
+            this.changeFilesList([]);
+        }
     }
     
     this.changeInterruptedFilesList = function(interruptedFilesList) {

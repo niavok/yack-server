@@ -253,7 +253,7 @@ def login(request):
                 
             data = json.dumps([{'status':  True, 'id': user.pk, 'name': user.get_display_name(), 'token': user.get_auth_token()}])
         else:
-            data = json.dumps([{'status':  False}])
+            data = json.dumps([{'status':  False , 'error': "BrowserId status is '"+result['status']+"' ('okay' excepted), reason: "+ result['reason']}])
     
         
         return HttpResponse(data,'application/javascript')

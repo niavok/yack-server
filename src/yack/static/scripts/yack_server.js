@@ -22,7 +22,7 @@ function YackServer() {
 		    if(response[0].status) {
                 yack.core.setLogged(response[0].id, response[0].token, response[0].name);
 		    } else {
-		        yack.error(response);
+		        yack.error(response[0].error);
 		    }
 		})
     }
@@ -32,7 +32,7 @@ function YackServer() {
 			if(response[0].status) {
 				yack.core.setLogged(response[0].id, response[0].token, response[0].name)
 			} else {
-    	        yack.error(response);
+    	        yack.error(response[0].error);
 			}					
 		});		
     }
@@ -43,7 +43,7 @@ function YackServer() {
 			if(!response[0].error) {
                 yack.core.changeInterruptedFilesList(response);
 			} else {
-    	        yack.error(response);
+    	        yack.error(response[0].error);
 			}					
 		});		
     }
@@ -54,7 +54,7 @@ function YackServer() {
 			if(!response[0].error) {
                 yack.core.changeFilesList(response);
 			} else {
-    	        yack.error(response);
+    	        yack.error(response[0].error);
 			}					
 		});		
     }

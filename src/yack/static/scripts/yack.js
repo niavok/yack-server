@@ -42,6 +42,12 @@ function Yack() {
         this.console.appendChild(document.createTextNode(text));
     }
     
+    this.error = function(text) {
+        this.print("error: "+text);
+        console.log("yack internal error: "+text);
+        yack_printStackTrace();
+    }
+    
     this.init();
 }
 yack = new Yack();

@@ -30,7 +30,7 @@ class YackTools():
         pack = None
         
         try:
-            user = YackUser.objects.get(code=split_path[0])
+            user = YackUser.objects.get(pk=split_path[0])
             pack = user.pack
         except ObjectDoesNotExist:
             # the user is not found
@@ -39,9 +39,8 @@ class YackTools():
         for sub_pack_path in split_path[1:]:
             try:
                 pack = YackPack.objects.get(parent_pack=pack, code=sub_pack_path)
-                pack = user.pack
             except ObjectDoesNotExist:
-                # the sub pack is not founud
+                # the sub pack is not found
                 return pack
         
         return pack

@@ -170,7 +170,7 @@ def command(request):
     
     if cmd == 'getFileList':
         
-        path = request.GET.get('path','')
+        path = request.GET.get('path',str(auth_user.pk))
         
         pack = YackTools.parse_pack_path(path)
         

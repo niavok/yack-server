@@ -293,18 +293,6 @@ function YackUploadTab() {
         var content = document.createElement('div');
         content.setAttribute("class", "upload_tab");
         
-        // Quota bar
-        var quotaBar = document.createElement('div');
-        quotaBar.setAttribute("class", "quota_bar");
-        quotaBar.appendChild(document.createTextNode("Quota"));
-                
-        // Title
-        var title = document.createElement('h1');
-        title.appendChild(document.createTextNode("Upload"));
-        
-        content.appendChild(quotaBar);
-        content.appendChild(title);
-        
         // Upload block
         var uploadBlock = document.createElement('div');
         uploadBlock.setAttribute("class", "upload_block");
@@ -431,8 +419,6 @@ function YackUploadTab() {
         tasksBlock.appendChild(tasksControls);
            
         
-        content.appendChild(quotaBar);
-        content.appendChild(title);
         content.appendChild(uploadBlock);
         content.appendChild(tasksBlock);
 
@@ -948,19 +934,6 @@ function YackFilesTab() {
         var content = document.createElement('div');
         content.setAttribute("class", "upload_tab");
         
-        // Quota bar
-        var quotaBar = document.createElement('div');
-        quotaBar.setAttribute("class", "quota_bar");
-        quotaBar.appendChild(document.createTextNode("Quota"));
-                
-        // Title
-        var title = document.createElement('h1');
-        title.appendChild(document.createTextNode("Files"));
-        
-        content.appendChild(quotaBar);
-        content.appendChild(title);
-        
-                 
         // Files block
         var filesBlock = document.createElement('div');
         filesBlock.setAttribute("class", "files_block");
@@ -970,8 +943,6 @@ function YackFilesTab() {
            
            filesBlock.appendChild(this.filesList);
         
-        content.appendChild(quotaBar);
-        content.appendChild(title);
         content.appendChild(filesBlock);
         
         return content;

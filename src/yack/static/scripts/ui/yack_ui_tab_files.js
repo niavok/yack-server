@@ -91,7 +91,7 @@ function YackFilesTab() {
                 fileName.setAttribute("class", "file_name");
                 var fileNameLink = document.createElement('a');
                 fileNameLink.setAttribute("href", file.link);
-                //fileNameLink.setAttribute("target", "_blank");
+                fileNameLink.setAttribute("target", "_blank");
                 fileNameLink.appendChild(document.createTextNode(file.name));
                 fileName.appendChild(fileNameLink);
                 

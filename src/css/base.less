@@ -427,4 +427,56 @@ h2 {
         
         }
     }
+    
+    .files_block {
+        .file_block {
+            margin-bottom: 15px;
+            margin-left: 15px;
+            .rounded_corners(2px);
+            border: 1px solid @border_color;
+            padding: 10px;
+            padding-left: 5px;
+            padding-right: 5px;
+            max-width: 400px;
+            width: 400px;
+            min-width: 400px;
+
+            min-height: 100px;
+            height: 100px;
+            max-height: 100px;
+            float: left;
+            
+            @background_color_1: rgb(240,240,240);    
+            @background_color_2: rgb(245,245,245);
+            @background_color_3: rgb(255,255,255);
+            
+            
+            background-image: linear-gradient(top, @background_color_1 0%, @background_color_2 5%, @background_color_3 100%);
+            background-image: -o-linear-gradient(top, @background_color_1 0%, @background_color_2 5%, @background_color_3 100%);
+            background-image: -moz-linear-gradient(top, @background_color_1 0%, @background_color_2 5%, @background_color_3 100%);
+            background-image: -webkit-linear-gradient(top, @background_color_1 0%, @background_color_2 5%, @background_color_3 100%);
+            background-image: -ms-linear-gradient(top, @background_color_1 0%, @background_color_2 5%, @background_color_3 100%);
+            
+            
+            .file_name {
+                font-size: 12px;
+                margin-left: 5px;
+                margin-right: 5px;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+            
+            .file_link {
+                input {
+                    .box-sizing;
+                    width: 380px;
+                    border: 1px solid @border_color;
+                    font-size: 10px;
+                    margin: 5px;
+                }
+            }
+        }
+    }
+    
+    
 }

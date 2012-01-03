@@ -23,30 +23,44 @@ function YackUI() {
         this.contentBlockDomElement = document.getElementById("content_panel");
         this.consoleBlockDomElement = document.getElementById("tabs_yack_console");
         
+        var self =  this;
+
     }
     
     this.run = function() {
         this.yackAuthComponent = new YackAuthComponent(this.userBlockDomElement);
         this.yackTabManager = new YackTabManager(this.tabsBlockDomElement, this.contentBlockDomElement);
         
+        this.generate();
         
-        this.yackTabManager.addTab(new YackUploadTab());
-        this.yackTabManager.addTab(new YackFilesTab());
-        this.yackTabManager.addTab(new YackSettingsTab());
-        this.yackTabManager.addTab(new YackMoreTabsTab());
+        var that =  this;
+        window.onpopstate = function(event) {
+            that.yackTabManager.selectByTitle(event.state.tab);
+        }
+
+        yack.core.loginEvent.register(function () { that.generate()})
+    }
+    
+    this.generate = function() {
+        this.yackTabManager.clearTabs();
         
-        
-         this.yackTabManager.selectByTitle(this.extractUrlParams()["tab"]);
+        if(yack.core.isLogged()) {
+	        this.yackTabManager.addTab(new YackUploadTab());
+            this.yackTabManager.addTab(new YackFilesTab());
+            this.yackTabManager.addTab(new YackSettingsTab());
+            this.yackTabManager.addTab(new YackMoreTabsTab());
+            this.yackTabManager.addTab(new YackYackTab());
+	    } else {
+	        this.yackTabManager.addTab(new YackLoginTab());
+            this.yackTabManager.addTab(new YackYackTab());
+	    }
+	    
+	    this.yackTabManager.selectByTitle(this.extractUrlParams()["tab"]);
         
         
         
         if(this.yackTabManager.selectedTab == null) {
              this.yackTabManager.select(this.yackTabManager.tabList[0]);
-        }
-        
-        var that =  this;
-        window.onpopstate = function(event) {
-            that.yackTabManager.selectByTitle(event.state.tab);
         }
     }
     
@@ -109,7 +123,18 @@ function YackTabManager(tabRootComponent, contentRootComponent) {
         //Set click handler
         this.setClickHandler(tab)
         
+    }
     
+    this.clearTabs = function() {
+        this.init();
+        
+        if ( tabRootComponent.hasChildNodes() )
+        {
+            while ( tabRootComponent.childNodes.length >= 1 )
+            {
+                tabRootComponent.removeChild( tabRootComponent.firstChild );       
+            } 
+        }
     }
     
     this.setClickHandler = function(tab) {
@@ -181,15 +206,17 @@ function YackAuthComponent(rootComponent) {
     }
     
     this.generateDisconnectedState = function() {
-        this.rootComponent.innerHTML = '<img id="browserid_button" alt="Sign in" src="https://browserid.org/i/sign_in_green.png" style="opacity: 1; cursor: pointer;">';
-        var self = this;
-    	document.getElementById('browserid_button').onclick = function() {
-    		self.onUiLogin();
-		}
+        this.rootComponent.innerHTML = '';
     }
     
     this.generateConnectedState = function() {
-    this.rootComponent.innerHTML = '<p>Logged as <em>'+yack.core.userName+'</em></p>';
+        this.rootComponent.innerHTML = '<p>Logged as <em>'+yack.core.userName+'</em></p>' +
+                                       '<p><a id="logout_button" href="#" >Logout</a></p>';
+                                       var self = this;
+    	document.getElementById('logout_button').onclick = function() {
+    		self.onUiLogout();
+    		return false;
+		}
     }
     
     this.onUiLogin = function() {
@@ -201,6 +228,10 @@ function YackAuthComponent(rootComponent) {
 			        // something went wrong!  the user isn't logged in.
 			    }
 			});
+	}
+	
+	this.onUiLogout = function() {
+        yack.core.logout();
 	}
 	
 	this.generate = function() {
@@ -288,6 +319,107 @@ function YackSettingsTab() {
         this.contentComponent =  document.createElement('div');
         this.contentComponent.innerHTML = "Settings tab !"
     }
+    
+    this.getContentComponent = function() {
+        return this.contentComponent;    
+    }
+    
+    this.getHeaderTitleComponent = function() {
+        return this.headerTitleComponent;
+    }
+    
+    this.getHeaderContentComponent = function() {
+        return this.headerContentComponent;
+    }
+    
+    this.init();
+}
+
+function YackLoginTab() {
+
+    this.init = function() {
+        this.title = "login"
+        this.headerTitleComponent =  document.createElement('p');
+        this.headerTitleComponent.innerHTML = "Login";
+
+
+        this.headerContentComponent =  document.createElement('div');
+        
+        this.contentComponent =  document.createElement('div');
+        this.contentComponent.setAttribute("class", "login_tab");
+        
+        // Login block
+        var loginBlock = document.createElement('div');
+        loginBlock.setAttribute("class", "login_block");
+        
+            // Title
+            var loginBlockTitle = document.createElement('h2');
+            loginBlockTitle.appendChild(document.createTextNode("Login with BrowserID"));
+
+            // FileChooser Block
+            var loginButtonBlock = document.createElement('div');
+            loginButtonBlock.setAttribute("class", "login_button_block");
+
+                // File Chooser
+                this.loginButton = document.createElement('div');
+                this.loginButton.setAttribute("class", "active_button");
+                var that = this;
+                this.loginButton.onclick = function() { that.onUiLogin(); };
+                this.loginButton.appendChild(document.createTextNode("Log in"));
+                
+                // Label
+                var loginButtonLabel = document.createElement('p');
+                loginButtonLabel.appendChild(document.createTextNode("If you don't have a BrowserID account, you will be able to create one by clicking the login button."));
+            loginButtonBlock.appendChild(this.loginButton);
+            loginButtonBlock.appendChild(loginButtonLabel);
+                    
+        loginBlock.appendChild(loginBlockTitle);
+        loginBlock.appendChild(loginButtonBlock);
+
+        this.contentComponent.appendChild(loginBlock);
+    }
+    
+    this.onUiLogin = function() {
+    	var self = this;
+		navigator.id.getVerifiedEmail(function(assertion) {
+			    if (assertion) {
+		            yack.core.loginByBrowserId(assertion);
+			    } else {
+			        // something went wrong!  the user isn't logged in.
+			    }
+			});
+	}
+    
+    
+    this.getContentComponent = function() {
+        return this.contentComponent;    
+    }
+    
+    this.getHeaderTitleComponent = function() {
+        return this.headerTitleComponent;
+    }
+    
+    this.getHeaderContentComponent = function() {
+        return this.headerContentComponent;
+    }
+    
+    this.init();
+}
+
+function YackYackTab() {
+
+    this.init = function() {
+        this.title = "yack"
+        this.headerTitleComponent =  document.createElement('p');
+        this.headerTitleComponent.innerHTML = "What is Yack ?";
+
+
+        this.headerContentComponent =  document.createElement('div');
+        
+        this.contentComponent =  document.createElement('div');
+        this.contentComponent.innerHTML = "Yack is a free software writen by Frédéric Bertolus. If you like it, try to fix and send me the bug you find. You can install your own instance of Yack, but there is no documentation for now, sorry (but you can write the documentation if you want :)).";
+    }
+    
     
     this.getContentComponent = function() {
         return this.contentComponent;    

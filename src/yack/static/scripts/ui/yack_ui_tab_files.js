@@ -51,7 +51,7 @@ function YackFilesTab() {
     this.generateContent = function() {
     
         var content = document.createElement('div');
-        content.setAttribute("class", "upload_tab");
+        content.setAttribute("class", "files_tab");
         
         // Files block
         var filesBlock = document.createElement('div');

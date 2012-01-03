@@ -204,7 +204,7 @@ class YackFile(models.Model):
             if group.contain_user(user):
                 return True
         
-        return isPublic
+        return self.isPublic
     
     def can_write(self, user):
         if self.owner == user:

@@ -100,7 +100,7 @@ function YackFilesTab() {
                 fileLink.setAttribute("class", "file_link");
                 var fileLinkInput = document.createElement('input');
                 fileLinkInput.setAttribute("type", "text");
-                if(location.port == "80" || location.port == "443") {
+                if(location.port == "" || location.port == "443") {
                     fileLinkInput.setAttribute("value", location.protocol + "//" + location.hostname + file.link);
                 } else {
                     fileLinkInput.setAttribute("value", location.protocol + "//" + location.hostname+ ":"+ location.port + file.link);

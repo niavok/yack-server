@@ -142,21 +142,47 @@ class YackFile(models.Model):
         second.delete()
         
     def check_finished(self):
+        print "check finished"
         if self.upload_state == "uploaded":
             return
         
+        print "self.parts.count() "+str(self.parts.count())        
+
         if self.parts.count() == 1:
             part = self.parts.all()[0]
             if part.offset == 0 and part.size == self.size:
+                #check integrity
+                totalSize = 0
+                currentOffset = 0
+                subpartIndex = 0
+                print "Check "+str(self.parts.all()[0].subparts.count())+" subpart"
+                for subpart in self.parts.all()[0].subparts.all():
+                    if subpart.offset != currentOffset:
+                        print "subpart "+str(subpartIndex)+" is at offset "+str(subpart.offset)+"instead of "+str(currentOffset)
+                        return
+                    if subpart.file.size != subpart.size:
+                        print "subpart "+str(subpartIndex)+" size is "+str(subpart.size)+" but the file size is "+str(subpart.file.size)
+                        return
+                        
+                    subpartIndex+=1
+                    currentOffset = subpart.offset + subpart.size
+                    totalSize += subpart.size
+
+                if totalSize != part.size:
+                    print "total size is "+str(totalSize)+"instead of "+str(part.size)+" expected"
+                    return
+                print "check done"
+
                 #generate file
                 tmp, tmp_name = tempfile.mkstemp(suffix=".tmp", prefix="yack_")
                 tmp_file = os.fdopen(tmp, "wb")
                 offset = 0
                 s = hashlib.sha1()
                 print tmp_name
-                while offset < self.size:
-                    subpart = part.get_subpart_by_offset(offset)
+                for subpart in self.parts.all()[0].subparts.all():
+                    print "offset="+str(offset)+" size="+str(self.size)
                     data = subpart.file.read()
+                    subpart.file.close()
                     s.update(data)
                     tmp_file.write(data)
                     offset += subpart.size
@@ -166,7 +192,6 @@ class YackFile(models.Model):
                 if s.hexdigest() != self.sha:
                     print "Integrity check of whole file fail: %s excepted but %s received." % (s.hexdigest(), self.sha)
                     return 
-                
                 tmp_file = open(tmp_name, "rb")
                 
                 

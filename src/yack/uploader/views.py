@@ -60,7 +60,7 @@ def send_file(request):
     except ObjectDoesNotExist:
         raise Http404
     
-                                    
+    yackFile.check_finished()
     wrapper = FileWrapper(yackFile.file.file)
     response = HttpResponse(wrapper, content_type='application/binary')
     response['Content-Disposition'] = 'inline; filename="'+yackFile.name+'"';
@@ -76,6 +76,8 @@ def command(request):
     auth_id = request.GET.get('auth_id','')
     mimetype = 'application/javascript'
     auth_user = None
+
+    print "cmd "+cmd
     
     if auth_token and auth_id:
         # Try to authenticate

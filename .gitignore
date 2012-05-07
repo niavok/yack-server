@@ -4,7 +4,8 @@ src/yack/static/yack.css
 .project
 .pydevproject
 .settings/
-bin
-lib
 include
 .Python
+/bin
+/src/yack/yack_files/
+/src/yack/yack_sub_parts/

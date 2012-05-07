@@ -7,15 +7,17 @@ tree.Expression.prototype = {
             return new(tree.Expression)(this.value.map(function (e) {
                 return e.eval(env);
             }));
-        } else {
+        } else if (this.value.length === 1) {
             return this.value[0].eval(env);
+        } else {
+            return this;
         }
     },
     toCSS: function (env) {
         return this.value.map(function (e) {
-            return e.toCSS(env);
+            return e.toCSS ? e.toCSS(env) : '';
         }).join(' ');
     }
 };
 
-})(require('less/tree'));
+})(require('../tree'));

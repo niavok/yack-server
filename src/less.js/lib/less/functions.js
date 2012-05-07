@@ -86,6 +86,13 @@ tree.functions = {
         hsl.a = clamp(hsl.a);
         return hsla(hsl);
     },
+    fade: function (color, amount) {
+        var hsl = color.toHSL();
+
+        hsl.a = amount.value / 100;
+        hsl.a = clamp(hsl.a);
+        return hsla(hsl);
+    },
     spin: function (color, amount) {
         var hsl = color.toHSL();
         var hue = (hsl.h + amount.value) % 360;
@@ -120,16 +127,80 @@ tree.functions = {
     e: function (str) {
         return new(tree.Anonymous)(str instanceof tree.JavaScript ? str.evaluated : str);
     },
+    escape: function (str) {
+        return new(tree.Anonymous)(encodeURI(str.value).replace(/=/g, "%3D").replace(/:/g, "%3A").replace(/#/g, "%23").replace(/;/g, "%3B").replace(/\(/g, "%28").replace(/\)/g, "%29"));
+    },
     '%': function (quoted /* arg, arg, ...*/) {
         var args = Array.prototype.slice.call(arguments, 1),
             str = quoted.value;
 
         for (var i = 0; i < args.length; i++) {
-            str = str.replace(/%s/,    args[i].value)
-                     .replace(/%[da]/, args[i].toCSS());
+            str = str.replace(/%[sda]/i, function(token) {
+                var value = token.match(/s/i) ? args[i].value : args[i].toCSS();
+                return token.match(/[A-Z]$/) ? encodeURIComponent(value) : value;
+            });
         }
         str = str.replace(/%%/g, '%');
         return new(tree.Quoted)('"' + str + '"', str);
+    },
+    round: function (n) {
+        return this._math('round', n);
+    },
+    ceil: function (n) {
+        return this._math('ceil', n);
+    },
+    floor: function (n) {
+        return this._math('floor', n);
+    },
+    _math: function (fn, n) {
+        if (n instanceof tree.Dimension) {
+            return new(tree.Dimension)(Math[fn](number(n)), n.unit);
+        } else if (typeof(n) === 'number') {
+            return Math[fn](n);
+        } else {
+            throw { type: "Argument", message: "argument must be a number" };
+        }
+    },
+    argb: function (color) {
+        return new(tree.Anonymous)(color.toARGB());
+
+    },
+    percentage: function (n) {
+        return new(tree.Dimension)(n.value * 100, '%');
+    },
+    color: function (n) {
+        if (n instanceof tree.Quoted) {
+            return new(tree.Color)(n.value.slice(1));
+        } else {
+            throw { type: "Argument", message: "argument must be a string" };
+        }
+    },
+    iscolor: function (n) {
+        return this._isa(n, tree.Color);
+    },
+    isnumber: function (n) {
+        return this._isa(n, tree.Dimension);
+    },
+    isstring: function (n) {
+        return this._isa(n, tree.Quoted);
+    },
+    iskeyword: function (n) {
+        return this._isa(n, tree.Keyword);
+    },
+    isurl: function (n) {
+        return this._isa(n, tree.URL);
+    },
+    ispixel: function (n) {
+        return (n instanceof tree.Dimension) && n.unit === 'px' ? tree.True : tree.False;
+    },
+    ispercentage: function (n) {
+        return (n instanceof tree.Dimension) && n.unit === '%' ? tree.True : tree.False;
+    },
+    isem: function (n) {
+        return (n instanceof tree.Dimension) && n.unit === 'em' ? tree.True : tree.False;
+    },
+    _isa: function (n, Type) {
+        return (n instanceof Type) ? tree.True : tree.False;
     }
 };
 
@@ -154,4 +225,4 @@ function clamp(val) {
     return Math.min(1, Math.max(0, val));
 }
 
-})(require('less/tree'));
+})(require('./tree'));

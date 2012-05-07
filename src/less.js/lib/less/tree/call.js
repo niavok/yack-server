@@ -3,9 +3,11 @@
 //
 // A function call node.
 //
-tree.Call = function (name, args) {
+tree.Call = function (name, args, index, filename) {
     this.name = name;
     this.args = args;
+    this.index = index;
+    this.filename = filename;
 };
 tree.Call.prototype = {
     //
@@ -24,7 +26,14 @@ tree.Call.prototype = {
         var args = this.args.map(function (a) { return a.eval(env) });
 
         if (this.name in tree.functions) { // 1.
-            return tree.functions[this.name].apply(tree.functions, args);
+            try {
+                return tree.functions[this.name].apply(tree.functions, args);
+            } catch (e) {
+                throw { type: e.type || "Runtime",
+                        message: "error evaluating function `" + this.name + "`" +
+                                 (e.message ? ': ' + e.message : ''),
+                        index: this.index, filename: this.filename };
+            }
         } else { // 2.
             return new(tree.Anonymous)(this.name +
                    "(" + args.map(function (a) { return a.toCSS() }).join(', ') + ")");
@@ -36,4 +45,4 @@ tree.Call.prototype = {
     }
 };
 
-})(require('less/tree'));
+})(require('../tree'));

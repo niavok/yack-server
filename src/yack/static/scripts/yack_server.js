@@ -19,20 +19,20 @@ function YackServer() {
 
     this.sendLoginByBrowserId = function(assertion) {
         yack_ajaxCall('/yack/login?method=browserid&token='+assertion, function(response) {
-		    if(response[0].status) {
-                yack.core.setLogged(response[0].id, response[0].token, response[0].name);
+		    if(response.status) {
+                yack.core.setLogged(response.id, response.token, response.name);
 		    } else {
-		        yack.error(response[0].error);
+		        yack.error(response.error);
 		    }
 		})
     }
     
     this.sendCheckLogin = function(userId, userToken) {
             yack_ajaxCall('/yack/login?method=check&id='+userId+'&token='+userToken, function(response) {
-			if(response[0].status) {
-				yack.core.setLogged(response[0].id, response[0].token, response[0].name)
+			if(response.status) {
+				yack.core.setLogged(response.id, response.token, response.name)
 			} else {
-    	        yack.error(response[0].error);
+    	        yack.error(response.error);
 			}					
 		});		
     }
@@ -40,10 +40,10 @@ function YackServer() {
     this.loadInterruptedFiles = function() {
     
         yack_ajaxCall('/yack/command?format=json&cmd=getInterrupedFilesList&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
-			if(!response[0].error) {
+			if(!response.error) {
                 yack.core.changeInterruptedFilesList(response);
 			} else {
-    	        yack.error(response[0].error);
+    	        yack.error(response.error);
 			}					
 		});		
     }
@@ -51,10 +51,10 @@ function YackServer() {
     this.loadFiles = function() {
     
         yack_ajaxCall('/yack/command?format=json&cmd=getFileList&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
-			if(!response[0].error) {
+			if(!response.error) {
                 yack.core.changeFilesList(response);
 			} else {
-    	        yack.error(response[0].error);
+    	        yack.error(response.error);
 			}					
 		});		
     }

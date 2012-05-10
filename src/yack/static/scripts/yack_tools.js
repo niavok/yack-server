@@ -136,7 +136,8 @@ function  yack_ajaxCall(url, callback) {
     
     xhr_object.onreadystatechange = function(){                   
     	if (xhr_object.readyState == 4) {
-    		 callback(eval(xhr_object.responseText));
+    		 json_str = "("+xhr_object.responseText+")";
+    		 callback(eval(json_str));
 		}
 	}    
 	

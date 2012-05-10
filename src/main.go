@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"html/template"
 	"bytes"
+	"yack/web"
 )
 
 type StaticFilePath struct {
@@ -35,39 +36,15 @@ func (this IndexHandle) ServeHTTP(
 	fmt.Println("IndexHandle: request="+r.URL.RequestURI());
 	fmt.Fprintf(w, this.indexCache);
 }
-
-
-type Hello struct{}
-
-func (h Hello) ServeHTTP(
-			w http.ResponseWriter, 
-			r *http.Request) {
-	fmt.Fprintf(w, "Hello! ");
-}
-
-type Hello2 struct{}
-
-func (h Hello2) ServeHTTP(
-			w http.ResponseWriter, 
-			r *http.Request) {
-	fmt.Fprintf(w, "Hello2! "+r.URL.RequestURI());
-}
 			
 func main() {
 	fmt.Println("Yack 1.0.0a8");
 	
-	var h Hello
-	var indexHandle = NewIndexHandle("resources/")
-	//var h2 Hello2
-	//http.Handle("/", h)
-	http.Handle("/bar", h)
-	//http.Handle("/resources/", h2)
-	
+	var indexHandle = NewIndexHandle("static/")
+	var loginHandle = web.NewLoginHandle()
 	http.Handle("/", indexHandle)
-	http.Handle("/resources/",http.StripPrefix("/resources", http.FileServer(http.Dir("src/yack/static"))))
-	//http.Handle("/", http.FileServer(http.Dir("src/yack/static/")))
+	http.Handle("/yack/login", loginHandle)
+	http.Handle("/static/",http.StripPrefix("/static", http.FileServer(http.Dir("src/yack/static"))))
 	
-	
-	//http.ListenAndServe("localhost:4000",h)
 	http.ListenAndServe("localhost:4000", nil)
 }

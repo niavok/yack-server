@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"net/http"
-	"yack/model"
-	"yack"
+	"../../yack/model"
+	"../../yack"
 	"strconv"
 	"net/url"
 )
@@ -53,7 +53,7 @@ func (this LoginHandle) ServeHTTP(
 		var id , _= strconv.Atoi(r.URL.Query().Get("id"))
 		
 		// database.users.get(auth_token=token, id=id)
-		var user = model.Model.Users.GetByAuthToken(token, id)
+		var user = model.GetModel().Users.GetByAuthToken(token, id)
 
 		var m = loginSucessMessage{true, user.Id, user.DisplayName(), user.AuthToken()}
 		
@@ -97,7 +97,7 @@ func (this LoginHandle) ServeHTTP(
         
         if result.Status == "okay" {
         	fmt.Println("okay")
-            user := model.Model.Users.GetByEmail(result.Email)
+            user := model.GetModel().Users.GetByEmail(result.Email)
             if user == nil {
                 user = model.NewUser(result.Email)
             }

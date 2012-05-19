@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"html/template"
 	"bytes"
-	"yack/web"
+	"./yack/web"
+    "./yack/model"
 )
 
 type StaticFilePath struct {
@@ -19,7 +20,7 @@ type IndexHandle struct{
 func NewIndexHandle(resourcePath string) *IndexHandle {
 	var this IndexHandle
 	
-	t, _ := template.ParseFiles("src/yack/templates/uploader/index.html")
+	t, _ := template.ParseFiles("resources/templates/index.html")
 	param := StaticFilePath{StaticUrl:resourcePath}
 
 	var data bytes.Buffer
@@ -40,11 +41,13 @@ func (this IndexHandle) ServeHTTP(
 func main() {
 	fmt.Println("Yack 1.0.0a8");
 	
+	model.Init()
+	
 	var indexHandle = NewIndexHandle("static/")
 	var loginHandle = web.NewLoginHandle()
 	http.Handle("/", indexHandle)
 	http.Handle("/yack/login", loginHandle)
-	http.Handle("/static/",http.StripPrefix("/static", http.FileServer(http.Dir("src/yack/static"))))
+	http.Handle("/static/",http.StripPrefix("/static", http.FileServer(http.Dir("resources/static"))))
 	
 	http.ListenAndServe("localhost:4000", nil)
 }

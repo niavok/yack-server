@@ -1,5 +1,8 @@
 package model
 
+import (
+)
+
 type User struct{
 	Id int
 }

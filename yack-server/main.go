@@ -41,7 +41,7 @@ func (this IndexHandle) ServeHTTP(
 func main() {
 	fmt.Println("Yack 1.0.0a8");
 	
-	model.Init()
+	model.Init();
 	
 	var indexHandle = NewIndexHandle("static/")
 	var loginHandle = web.NewLoginHandle()
@@ -49,5 +49,6 @@ func main() {
 	http.Handle("/yack/login", loginHandle)
 	http.Handle("/static/",http.StripPrefix("/static", http.FileServer(http.Dir("resources/static"))))
 	
+	fmt.Println("Start server on :4000")
 	http.ListenAndServe("localhost:4000", nil)
 }

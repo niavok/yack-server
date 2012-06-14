@@ -54,11 +54,16 @@ func (this LoginHandle) ServeHTTP(
 		
 		// database.users.get(auth_token=token, id=id)
 		var user = model.GetModel().Users.GetByAuthToken(token, id)
-
-		var m = loginSucessMessage{true, user.Id, user.DisplayName(), user.AuthToken()}
-		
-		var data, _ = json.Marshal(m)
-		fmt.Println("generated verify json: ",data)
+        var data []byte
+        
+        if user == nil {
+            var m = loginFailMessage{false, fmt.Sprintf("AuthToken is invalid or perimed: %s", token)}
+        	data, _ = json.Marshal(m)
+        } else {
+		    var m = loginSucessMessage{true, user.Id(), user.DisplayName(), user.AuthToken()}
+		    data, _ = json.Marshal(m)
+		}
+		fmt.Println("generated verify json: ",string(data))
 		w.Header().Set("Content-Type", "application/javascript")
 		w.WriteHeader(200)
 		w.Write(data)
@@ -99,10 +104,11 @@ func (this LoginHandle) ServeHTTP(
         	fmt.Println("okay")
             user := model.GetModel().Users.GetByEmail(result.Email)
             if user == nil {
-                user = model.NewUser(result.Email)
+                model.NewUser(result.Email)
+                user = model.GetModel().Users.GetByEmail(result.Email)
             }
              
-            var m = loginSucessMessage{true, user.Id, user.DisplayName(), user.AuthToken()}
+            var m = loginSucessMessage{true, user.Id(), user.DisplayName(), user.AuthToken()}
 		
 			data, _ = json.Marshal(m)
 			fmt.Println("generated json: ",string(data))

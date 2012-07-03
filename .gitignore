@@ -1,6 +1,6 @@
 *~
 *.pyc
-src/yack/static/yack.css
+resources/static/yack.css
 .project
 .pydevproject
 .settings/

@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"html/template"
 	"bytes"
-	"./yack/web"
-    "./yack/model"
+	"github.com/fredb219/yack-server/web"
+    "github.com/fredb219/yack"
 )
+
+
+
 
 type StaticFilePath struct {
     StaticUrl string
@@ -41,12 +44,14 @@ func (this IndexHandle) ServeHTTP(
 func main() {
 	fmt.Println("Yack 1.0.0a8");
 	
-	model.Init();
+	yack.Init();
 	
 	var indexHandle = NewIndexHandle("static/")
 	var loginHandle = web.NewLoginHandle()
+	var commandHandle = web.NewCommandHandle()
 	http.Handle("/", indexHandle)
 	http.Handle("/yack/login", loginHandle)
+	http.Handle("/yack/command", commandHandle)
 	http.Handle("/static/",http.StripPrefix("/static", http.FileServer(http.Dir("resources/static"))))
 	
 	fmt.Println("Start server on :4000")

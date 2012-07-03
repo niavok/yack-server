@@ -1,0 +1,3 @@
+#!/bin/bash
+
+lib/less.js/bin/lessc -x  graphics/css/yack.less > resources/static/yack.css

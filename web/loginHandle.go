@@ -5,10 +5,9 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"net/http"
-	"../../yack/model"
-	"../../yack"
 	"strconv"
 	"net/url"
+	"github.com/fredb219/yack"
 )
 
 
@@ -53,7 +52,7 @@ func (this LoginHandle) ServeHTTP(
 		var id , _= strconv.Atoi(r.URL.Query().Get("id"))
 		
 		// database.users.get(auth_token=token, id=id)
-		var user = model.GetModel().Users.GetByAuthToken(token, id)
+		var user = yack.GetModel().Users.GetByAuthToken(token, id)
         var data []byte
         
         if user == nil {
@@ -83,7 +82,7 @@ func (this LoginHandle) ServeHTTP(
         	Reason string `json:"reason"`
         }
         
-        resp, _ := http.PostForm("https://browserid.org/verify", url.Values{"assertion": {token}, "audience": {yack.Hostname}})
+        resp, _ := http.PostForm("https://browserid.org/verify", url.Values{"assertion": {token}, "audience": {Hostname}})
 		defer resp.Body.Close()
 		resultJson, _ := ioutil.ReadAll(resp.Body)
 		
@@ -102,10 +101,10 @@ func (this LoginHandle) ServeHTTP(
         
         if result.Status == "okay" {
         	fmt.Println("okay")
-            user := model.GetModel().Users.GetByEmail(result.Email)
+            user := yack.GetModel().Users.GetByEmail(result.Email)
             if user == nil {
-                model.NewUser(result.Email)
-                user = model.GetModel().Users.GetByEmail(result.Email)
+                yack.NewUser(result.Email)
+                user = yack.GetModel().Users.GetByEmail(result.Email)
             }
              
             var m = loginSucessMessage{true, user.Id(), user.DisplayName(), user.AuthToken()}

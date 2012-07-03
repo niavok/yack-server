@@ -41,7 +41,7 @@ type fileMessage struct {
 }
 
 type fileListMessage struct {
-	Files []fileMessage
+	Files []fileMessage `json:"files"`
 }
 
 type commandFailMessage struct {
@@ -90,7 +90,7 @@ func (this CommandHandle) ServeHTTP(
 			fileMessages[i] = fileMessage{file.Id(), file.Name(), file.Size(), link, file.CanWrite(user)}
 		}
 
-		var m = loginSucessMessage{true, user.Id(), user.DisplayName(), user.AuthToken()}
+		var m = fileListMessage{fileMessages}
 		var data []byte
 		data, _ = json.Marshal(m)
 		writeResponse(w, data)

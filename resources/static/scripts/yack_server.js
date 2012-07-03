@@ -41,7 +41,7 @@ function YackServer() {
     
         yack_ajaxCall('/yack/command?format=json&cmd=getInterruptedFilesList&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
 			if(!response.error) {
-                yack.core.changeInterruptedFilesList(response);
+                yack.core.changeInterruptedFilesList(response.files);
 			} else {
     	        yack.error(response.error);
 			}					

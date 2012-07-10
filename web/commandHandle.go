@@ -19,24 +19,6 @@ func NewCommandHandle() *CommandHandle {
 	return &this
 }
 
-type fileMessage struct {
-	Id       int    `json:"id"`
-	Name     string `json:"name"`
-	Size     int    `json:"size"`
-	Link     string `json:"link"`
-	Progress float64`json: progress`
-	CanWrite bool   `json:"can_write"`
-}
-
-type fileListMessage struct {
-	Files []fileMessage `json:"files"`
-}
-
-type commandFailMessage struct {
-	Status bool   `json:"status"`
-	Error  string `json:"error"`
-}
-
 func (this CommandHandle) ServeHTTP(
 	w http.ResponseWriter,
 	r *http.Request) {
@@ -72,43 +54,110 @@ func (this CommandHandle) ServeHTTP(
 
 		writeFileList(w, user.GetInterruptedFiles(), user)
 	} else if cmd == "getFileList" {
-    	var path = r.URL.Query().Get("path")
-    	if path == "" && user != nil {
-        	fmt.Println("CommandHandle: user id=",user.Id()," str=",strconv.Itoa(user.Id()) )
-    	    path = strconv.Itoa(user.Id())
-    	}
-    	
-    	var pack *yack.Pack = yack.GetModel().Packs.GetByPath(path)
-	
-	    if pack == nil {
-	        writeError(w, "No pack found at this path: "+path)
-	        return
-	    }
-	    
-	    if !pack.CanRead(user) {
-	        writeError(w, "You don't have the right to read the pack: "+path)
-	        return
-	    }
-	    
-		writeFileList(w, pack.GetFiles(), user)
-	} else {
-    	writeError(w, "Unknown command: "+cmd)
-	}
-	
-}
-
-func writeFileList(w http.ResponseWriter, files []*yack.File, user *yack.User) {
-var fileMessages []fileMessage = make([]fileMessage, len(files))
-
-		for i, file := range files {
-			var link string = "/file?id=" + strconv.Itoa(file.Id()) + "&sha=" + file.Sha()
-			fileMessages[i] = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user)}
+		var path = r.URL.Query().Get("path")
+		if path == "" && user != nil {
+			fmt.Println("CommandHandle: user id=", user.Id(), " str=", strconv.Itoa(user.Id()))
+			path = strconv.Itoa(user.Id())
 		}
 
-		var m = fileListMessage{fileMessages}
+		var pack *yack.Pack = yack.GetModel().Packs.GetByPath(path)
+
+		if pack == nil {
+			writeError(w, "No pack found at this path: "+path)
+			return
+		}
+
+		if !pack.CanRead(user) {
+			writeError(w, "You don't have the right to read the pack: "+path)
+			return
+		}
+
+		writeFileList(w, pack.GetFiles(), user)
+	} else if cmd == "getCsrfToken" {
+		if user == nil {
+			writeError(w, "You must be logged to get a CSRF Token")
+			return
+		}
+
+		type commandCsrfMessage struct {
+			CsrfToken string `json:"csrf_token"`
+		}
+
+		// TODO: implement generation and verification
+		var m = commandCsrfMessage{"it_is_not_a_valid_token!"}
 		var data []byte
 		data, _ = json.Marshal(m)
 		writeResponse(w, data)
+	} else if cmd == "createFile" {
+		if user == nil {
+			writeError(w, "You must be logged to get create a file")
+			return
+		}
+
+		// The client ask to create a new file
+		var name = r.URL.Query().Get("name")
+		var sha = r.URL.Query().Get("sha")
+		var sizeStr = r.URL.Query().Get("size")
+		var size, _ = strconv.Atoi(sizeStr)
+
+		var file = yack.GetModel().Files.GetBySha(sha)
+
+		if file != nil {
+			// The file already exist
+			file.CheckFinished()
+
+			if !file.CanWrite(user) {
+				//TODO handle multiple user send
+				// To do that, search by sha and user. If no match, search by sha.
+				// If match, to avoid the user to upload the entire file, and to avoid to get the file
+				// with only the hash, challenge the user asking the sha of a ramdom small
+				// part of the file
+				writeError(w, "You don't have the right to write the file")
+				return
+			}
+		} else {
+			file = yack.NewFile(user, name, sha, size)
+		}
+
+		type createFileMessage struct {
+			File int `json:"csrf_token"`
+		}
+
+		var m = createFileMessage{file.Id()}
+		var data []byte
+		data, _ = json.Marshal(m)
+		writeResponse(w, data)
+
+	} else {
+		writeError(w, "Unknown command: "+cmd)
+	}
+}
+
+func writeFileList(w http.ResponseWriter, files []*yack.File, user *yack.User) {
+	type fileMessage struct {
+		Id       int     `json:"id"`
+		Name     string  `json:"name"`
+		Size     int     `json:"size"`
+		Link     string  `json:"link"`
+		Progress float64 `json: progress`
+		CanWrite bool    `json:"can_write"`
+	}
+
+	type fileListMessage struct {
+		Files []fileMessage `json:"files"`
+	}
+
+	var fileMessages []fileMessage = make([]fileMessage, len(files))
+
+	for i, file := range files {
+		var link string = "/file?id=" + strconv.Itoa(file.Id()) + "&sha=" + file.Sha()
+		fileMessages[i] = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user)}
+	}
+
+	var m = fileListMessage{fileMessages}
+	var data []byte
+	data, _ = json.Marshal(m)
+	writeResponse(w, data)
 }
 
 func writeResponse(w http.ResponseWriter, data []byte) {
@@ -119,10 +168,14 @@ func writeResponse(w http.ResponseWriter, data []byte) {
 }
 
 func writeError(w http.ResponseWriter, error string) {
+
+	type commandFailMessage struct {
+		Status bool   `json:"status"`
+		Error  string `json:"error"`
+	}
+
 	var m = commandFailMessage{false, error}
 	var data, _ = json.Marshal(m)
 	fmt.Println("generated error json: ", string(data))
-	w.Header().Set("Content-Type", "application/javascript")
-	w.WriteHeader(200)
-	w.Write(data)
+	writeResponse(w, data)
 }

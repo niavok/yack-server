@@ -81,7 +81,7 @@ function Server(authId, authToken) {
           response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
           log('yack_worker_send_file: '+response)
           
-          return new DistantFile(response[0].id);
+          return new DistantFile(response.id);
           
     }
     
@@ -98,8 +98,9 @@ function Server(authId, authToken) {
         }
         xhr_object.open("GET", url , false);
         xhr_object.send(null);
-        return eval(xhr_object.responseText);
-
+        
+        json_str = "("+xhr_object.responseText+")";
+        return eval(json_str);
     }
     
     this.sendDataCommand = function(command, params, data) {
@@ -176,10 +177,10 @@ function DistantFile(id) {
     this.refresh = function() { 
     	response = server.sendCommand('getFileInfo', {'pk': this.id});
     	
-    	this.size = response[0].size
-    	this.sha = response[0].sha
-    	this.state = response[0].upload_state
-    	this.parts = response[0].parts
+    	this.size = response.size
+    	this.sha = response.sha
+    	this.state = response.upload_state
+    	this.parts = response.parts
     	
     }
     

@@ -136,12 +136,12 @@ function  yack_ajaxCall(url, callback) {
     
     xhr_object.onreadystatechange = function(){                   
     	if (xhr_object.readyState == 4) {
-    		 json_str = "("+xhr_object.responseText+")";
+    		json_str = "("+xhr_object.responseText+")";
             try {
                 callback(eval(json_str));
             } catch(err) {
                 console.error("error '"+err+"' evaluation json response in '"+url+"': \n"+json_str);
-             }
+            }
 		}
 	}    
 	

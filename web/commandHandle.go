@@ -23,7 +23,7 @@ func (this CommandHandle) ServeHTTP(
 	w http.ResponseWriter,
 	r *http.Request) {
 
-	fmt.Println("CommandHandle: request=" + r.URL.RequestURI())
+	fmt.Println("\nCommandHandle: request=" + r.URL.RequestURI())
 
 	var cmd = r.URL.Query().Get("cmd")
 	var authToken = r.URL.Query().Get("auth_token")
@@ -43,8 +43,6 @@ func (this CommandHandle) ServeHTTP(
 			return
 		}
 	}
-
-	fmt.Println("CommandHandle: user=", user)
 
 	if cmd == "getInterruptedFilesList" {
 		if user == nil {
@@ -104,7 +102,6 @@ func (this CommandHandle) ServeHTTP(
 
 		if file != nil {
 			// The file already exist
-			file.CheckFinished()
 
 			if !file.CanWrite(user) {
 				//TODO handle multiple user send

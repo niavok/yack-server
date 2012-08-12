@@ -52,7 +52,7 @@ function YackServer() {
     
         yack_ajaxCall('/yack/command?format=json&cmd=getFileList&auth_id='+yack.core.userId+'&auth_token='+yack.core.userToken, function(response) {
 			if(!response.error) {
-                yack.core.changeFilesList(response);
+                yack.core.changeFilesList(response.files);
 			} else {
     	        yack.error(response.error);
 			}					

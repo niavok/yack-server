@@ -34,7 +34,7 @@ func (this CommandHandle) ServeHTTP(
 
 	if authToken != "" && authIdStr != "" {
 		// Try to authenticate
-		var authId, _ = strconv.Atoi(authIdStr)
+		var authId, _ = strconv.ParseInt(authIdStr, 10, 64)
 		user = yack.GetModel().Users.GetByAuthToken(authToken, authId)
 
 		if user == nil {
@@ -54,8 +54,8 @@ func (this CommandHandle) ServeHTTP(
 	} else if cmd == "getFileList" {
 		var path = r.URL.Query().Get("path")
 		if path == "" && user != nil {
-			fmt.Println("CommandHandle: user id=", user.Id(), " str=", strconv.Itoa(user.Id()))
-			path = strconv.Itoa(user.Id())
+			fmt.Println("CommandHandle: user id=", user.Id(), " str=", strconv.FormatInt(user.Id(),10))
+			path = strconv.FormatInt(user.Id(),10)
 		}
 
 		var pack *yack.Pack = yack.GetModel().Packs.GetByPath(path)

@@ -22,7 +22,7 @@ func NewLoginHandle() *LoginHandle {
 
 type loginSucessMessage struct {
 	Status bool   `json:"status"`
-	Id     int    `json:"id"`
+	Id     int64    `json:"id"`
 	Name   string `json:"name"`
 	Token  string `json:"token"`
 }
@@ -44,7 +44,7 @@ func (this LoginHandle) ServeHTTP(
 
 	if method == "check" {
 		var token = r.URL.Query().Get("token")
-		var id, _ = strconv.Atoi(r.URL.Query().Get("id"))
+		var id, _ = strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 
 		// database.users.get(auth_token=token, id=id)
 		var user = yack.GetModel().Users.GetByAuthToken(token, id)

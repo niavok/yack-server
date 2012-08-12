@@ -153,7 +153,7 @@ function DistantFile(id) {
 			var sha_digest = rstr2hex(sha.digest());
 			
 			
-			response = server.sendDataCommand('sendFilePart', {'pk': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
+			response = server.sendDataCommand('sendFilePart', {'id': this.id, 'size': work.size, 'offset': work.offset, 'sha': sha_digest}, raw);
 			
 			this.optimizeBlockSize(timer.getTime())
 			
@@ -175,7 +175,7 @@ function DistantFile(id) {
     }
         
     this.refresh = function() { 
-    	response = server.sendCommand('getFileInfo', {'pk': this.id});
+    	response = server.sendCommand('getFileInfo', {'id': this.id});
     	
     	this.size = response.size
     	this.sha = response.sha

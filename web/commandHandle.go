@@ -71,6 +71,28 @@ func (this CommandHandle) ServeHTTP(
 		}
 
 		writeFileList(w, pack.GetFiles(), user)
+	} else if cmd == "getFileInfo" {
+		var id, _ = strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+		
+		var file *yack.File = yack.GetModel().Files.GetById(id)
+		
+		if file == nil {
+			writeError(w, "No file found with id: "+string(id))
+			return
+		}
+		
+		if !file.CanRead(user) {
+			writeError(w, "You don't have the right to read the file: "+string(id))
+			return
+		}
+
+		var link string = "/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
+		var m fileMessage  = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user)}
+
+	    var data []byte
+	    data, _ = json.Marshal(m)
+	    writeResponse(w, data)
+		
 	} else if cmd == "getCsrfToken" {
 		if user == nil {
 			writeError(w, "You must be logged to get a CSRF Token")
@@ -117,7 +139,7 @@ func (this CommandHandle) ServeHTTP(
 		}
 
 		type createFileMessage struct {
-			File int `json:"csrf_token"`
+			File int64 `json:"csrf_token"`
 		}
 
 		var m = createFileMessage{file.Id()}
@@ -130,15 +152,17 @@ func (this CommandHandle) ServeHTTP(
 	}
 }
 
+type fileMessage struct {
+	Id       int64     `json:"id"`
+	Name     string  `json:"name"`
+	Size     int     `json:"size"`
+	Link     string  `json:"link"`
+	Progress float64 `json:"progress"`
+	CanWrite bool    `json:"can_write"`
+}
+
 func writeFileList(w http.ResponseWriter, files []*yack.File, user *yack.User) {
-	type fileMessage struct {
-		Id       int     `json:"id"`
-		Name     string  `json:"name"`
-		Size     int     `json:"size"`
-		Link     string  `json:"link"`
-		Progress float64 `json: progress`
-		CanWrite bool    `json:"can_write"`
-	}
+	
 
 	type fileListMessage struct {
 		Files []fileMessage `json:"files"`
@@ -147,7 +171,7 @@ func writeFileList(w http.ResponseWriter, files []*yack.File, user *yack.User) {
 	var fileMessages []fileMessage = make([]fileMessage, len(files))
 
 	for i, file := range files {
-		var link string = "/file?id=" + strconv.Itoa(file.Id()) + "&sha=" + file.Sha()
+		var link string = "/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
 		fileMessages[i] = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user)}
 	}
 

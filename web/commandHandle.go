@@ -50,7 +50,7 @@ func (this CommandHandle) ServeHTTP(
 			return
 		}
 
-		writeFileList(w, user.GetInterruptedFiles(), user)
+		writeMessage(w, createFileMessageList(user.GetInterruptedFiles(), user))
 	} else if cmd == "getFileList" {
 		var path = r.URL.Query().Get("path")
 		if path == "" && user != nil {
@@ -70,7 +70,7 @@ func (this CommandHandle) ServeHTTP(
 			return
 		}
 
-		writeFileList(w, pack.GetFiles(), user)
+        writeMessage(w, createFileMessageList(pack.GetFiles(), user))
 	} else if cmd == "getFileInfo" {
 		var id, _ = strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
 		
@@ -86,13 +86,7 @@ func (this CommandHandle) ServeHTTP(
 			return
 		}
 
-		var link string = "/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
-		var m fileMessage  = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user)}
-
-	    var data []byte
-	    data, _ = json.Marshal(m)
-	    writeResponse(w, data)
-		
+        writeMessage(w, createFileMessage(file, user))
 	} else if cmd == "getCsrfToken" {
 		if user == nil {
 			writeError(w, "You must be logged to get a CSRF Token")
@@ -138,44 +132,87 @@ func (this CommandHandle) ServeHTTP(
 			file = yack.NewFile(user, name, sha, size)
 		}
 
-		type createFileMessage struct {
-			File int64 `json:"csrf_token"`
-		}
-
-		var m = createFileMessage{file.Id()}
-		var data []byte
-		data, _ = json.Marshal(m)
-		writeResponse(w, data)
-
+        writeMessage(w, createFileMessage(file, user))
+    } else if cmd == "sendFilePart" {
+		var id, _ = strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+		var offset, _ = strconv.ParseInt(r.URL.Query().Get("offset"), 10, 64)
+		var size, _ = strconv.ParseInt(r.URL.Query().Get("size"), 10, 64)
+		var sha = r.URL.Query().Get("sha")
+	
+	    var file *yack.File = yack.GetModel().Files.GetById(id)
+	
+	    if file == nil {
+		    writeError(w, "No file found with id: "+string(id))
+		    return
+	    }
+	
+	    if !file.CanWrite(user) {
+		    writeError(w, "You don't have the right to write the file: "+string(id))
+		    return
+	    }
+		
+		file.AddData(offset, size, sha, r.Body)
+		
+		writeMessage(w, createFileMessage(file, user))
 	} else {
 		writeError(w, "Unknown command: "+cmd)
 	}
 }
 
-type fileMessage struct {
-	Id       int64     `json:"id"`
-	Name     string  `json:"name"`
-	Size     int     `json:"size"`
-	Link     string  `json:"link"`
-	Progress float64 `json:"progress"`
-	CanWrite bool    `json:"can_write"`
+type partMessage struct {
+    Offset     int64     `json:"begin"`
+    Size     int64     `json:"size"`
 }
 
-func writeFileList(w http.ResponseWriter, files []*yack.File, user *yack.User) {
-	
+type fileMessage struct {
+    Id       int64     `json:"id"`
+    Name     string  `json:"name"`
+    Size     int64     `json:"size"`
+    Link     string  `json:"link"`
+    Progress float64 `json:"progress"`
+    CanWrite bool    `json:"can_write"`
+    Parts   []partMessage `json:"parts"`
+}
 
-	type fileListMessage struct {
-		Files []fileMessage `json:"files"`
+type fileListMessage struct {
+    Files []fileMessage `json:"files"`
+}
+
+func createPartMessage(part *yack.Part) partMessage {
+    var m partMessage  = partMessage{part.Offset(), part.Size()}
+    return m
+}
+
+func createPartMessageList(parts []*yack.Part) []partMessage {
+    var partMessages []partMessage = make([]partMessage, len(parts))
+
+	for i, part := range parts {
+		partMessages[i] = createPartMessage(part)
 	}
+    return partMessages
+}
 
-	var fileMessages []fileMessage = make([]fileMessage, len(files))
+func createFileMessage(file *yack.File, user *yack.User) fileMessage {
+    var link string = "/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
+	var m fileMessage  = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user), createPartMessageList(file.Parts())}
+    return m
+}
+
+
+func createFileMessageList(files []*yack.File, user *yack.User) fileListMessage{
+    var fileMessages []fileMessage = make([]fileMessage, len(files))
 
 	for i, file := range files {
-		var link string = "/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
-		fileMessages[i] = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user)}
+		fileMessages[i] = createFileMessage(file, user)
 	}
 
 	var m = fileListMessage{fileMessages}
+
+    return m
+}
+
+
+func writeMessage(w http.ResponseWriter, m interface{}) {
 	var data []byte
 	data, _ = json.Marshal(m)
 	writeResponse(w, data)

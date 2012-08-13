@@ -79,7 +79,7 @@ function Server(authId, authToken) {
 
     this.createDistantFile = function(name, size, sha) {
           response = this.sendCommand('createFile', {'name': name, 'size': size, 'sha': sha});
-          log('yack_worker_send_file: '+response)
+          log('yack_worker_send_file: createDistantFile response='+response)
           
           return new DistantFile(response.id);
           
@@ -157,8 +157,8 @@ function DistantFile(id) {
 			
 			this.optimizeBlockSize(timer.getTime())
 			
-    		this.parts = response[0].parts
-    		this.state = response[0].upload_state
+    		this.parts = response.parts
+    		this.state = response.upload_state
     		// Update progress
     		progressCallback(this.getProgress())
     	}

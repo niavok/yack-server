@@ -130,6 +130,7 @@ func (this CommandHandle) ServeHTTP(
 			}
 		} else {
 			file = yack.NewFile(user, name, sha, size)
+			user.RootPack().AddFile(file)
 		}
 
         writeMessage(w, createFileMessage(file, user))
@@ -193,13 +194,15 @@ func createPartMessageList(parts []*yack.Part) []partMessage {
 }
 
 func createFileMessage(file *yack.File, user *yack.User) fileMessage {
-    var link string = "/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
+    var link string = "/yack/file?id=" + strconv.FormatInt(file.Id(),10) + "&sha=" + file.Sha()
 	var m fileMessage  = fileMessage{file.Id(), file.Name(), file.Size(), link, file.Progress(), file.CanWrite(user), createPartMessageList(file.Parts())}
     return m
 }
 
 
 func createFileMessageList(files []*yack.File, user *yack.User) fileListMessage{
+    fmt.Println("createFileMessageList ", files) 
+
     var fileMessages []fileMessage = make([]fileMessage, len(files))
 
 	for i, file := range files {
@@ -207,6 +210,7 @@ func createFileMessageList(files []*yack.File, user *yack.User) fileListMessage{
 	}
 
 	var m = fileListMessage{fileMessages}
+    fmt.Println("fileListMessage ", m)
 
     return m
 }

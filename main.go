@@ -47,8 +47,10 @@ func main() {
 	var indexHandle = NewIndexHandle("static/")
 	var loginHandle = web.NewLoginHandle()
 	var commandHandle = web.NewCommandHandle()
+	var fileHandle = web.NewFileHandle()
 	http.Handle("/", indexHandle)
 	http.Handle("/yack/login", loginHandle)
+	http.Handle("/yack/file", fileHandle)
 	http.Handle("/yack/command", commandHandle)
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("resources/static"))))
 

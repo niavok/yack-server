@@ -52,7 +52,7 @@ function YackUploadTask(file, listener) {
 			return
 		}
 		var that = this;
-		this.worker = new Worker("/static/scripts/yack_worker_send_file.js");
+		this.worker = new Worker("/static/scripts/yack_worker_send_file.js"+"?"+Math.random().toString(36).substring(20));
 	    this.worker.addEventListener('message', function(e) { that.worker_callback(e);}, false);
 		this.worker.postMessage({'cmd' : 'init', 'authToken' : yack.core.userToken, 'authId' : yack.core.userId});
 		this.worker.postMessage({'cmd' : 'add_file', 'file': this.file});

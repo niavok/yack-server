@@ -117,7 +117,8 @@ function Server(authId, authToken) {
         xhr_object.open("POST", url , false);
         xhr_object.setRequestHeader("X-CSRFToken", this.csrfToken);
         xhr_object.send(data);
-        return eval(xhr_object.responseText);
+        json_str = "("+xhr_object.responseText+")";
+        return eval(json_str);
 
     }
     
@@ -196,7 +197,7 @@ function DistantFile(id) {
 			relativeRatio = 0.1;
 		}
 		
-		//Set new siez block
+		//Set new size block
 		this.block_size = parseInt(this.block_size * relativeRatio);
 	}
     
